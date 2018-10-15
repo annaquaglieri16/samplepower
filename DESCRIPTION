@@ -4,13 +4,16 @@ Title: Compute sensitivity and false positive rates for a variant call set with 
 Version: 0.1.0
 Depends: R (>= 3.5.1)
 Author: Anna Quaglieri
-Maintainer: quaglieri.a@wehi.edu.au
+Maintainer: <quaglieri.a@wehi.edu.au>
 Description: This package contains functions to use dowstream of a variant calling pipeline for RNA-Seq developed in rnapiper. The set of function are useful to parse the variants across different parsed VCF files and evaluate sensitivity and false positive rates woth respect to a truth set.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
   GenomicRanges,
-  tidyverse
+  IRanges,
+  S4Vectors,
+  dplyr,
+  edgeR
   
 

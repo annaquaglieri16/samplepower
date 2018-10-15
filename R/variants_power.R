@@ -44,21 +44,103 @@
 # pos
 # SYMBOL: gene name in SYMBOL
 
-variants_power <- function(vcfdir = vcf_germline_var,
-                          down_label,
-                          germline = TRUE,
-                          truth_set = mut_infos_ra,
-                          vcfdir_initial= variant_initial,
-                          caller="mutect",
-                          gene_expression = gene_expr,
-                          normal_variants = mut_pon,
-                          exon_ranges=hg19_exons_combined,
-                          homop_ranges=GRanges_homop,
-                          RNAedit_ranges = RNAeditGR,
-                          repeats_ranges = repeatsGR,
-                          ncbi = ncbi,
-                          flag_patterns = file.path(dir,"scripts/02-variant_loss_downsampling/flag_patterns_added2.csv"),
-                          path_to_gatk_coverage = file.path(dir, "scripts/06-Streamline_downsampling/05-DepthOfCoverage/50M_100/50M_100")){
+variants_power <- function(variant_files, # vector of path aiming at the final parsed files germline_final.txt
+                           variant_files_initial, # vector of path aiming at the final parsed files germline_final.txt of the initial run
+                           down_label = NA,
+                           germline = TRUE,
+                           truth_set = NA,
+                           caller,
+                           gene_expression,
+                           normal_variants,
+                           exon_ranges,
+                           homop_ranges,
+                           RNAedit_ranges,
+                           repeats_ranges,
+                           ncbi,
+                           flag_patterns,
+                           path_to_gatk_coverage){
+
+  #########################################
+  # 0. Check column names and validity of files
+  #########################################
+
+  if(length(variant_files) < 1){
+    stop("No downsampled variant files available in input")
+  }
+
+  if(length(variant_files_initial) < 1){
+    stop("No initial variant files available in input")
+  }
+
+  if(!exists_with_class("down_label","character")){
+    stop("down_label (label for the downsampled run) was not specified")
+  }
+
+  # Truth set - existence and column names
+  if(is.na(truth_set)){
+    stop("No set of true variants provided.")
+  } else{
+    check_columns <-
+      sum(!(c("chrom","pos","Locus","alt_initial","ref",
+              "VARIANT_CLASS","SYMBOL","Feature","SampleName") %>% colnames(truth_set)))
+
+    if(check_columns > 0){
+      missing <- colnames(truth_set)[!(c("chrom","pos","Locus","alt_initial","ref",
+                     "VARIANT_CLASS","SYMBOL","Feature","SampleName") %>% colnames(truth_set))]
+      stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
+    }
+  }
+
+  if(is.na(caller)){
+    stop("Specify which 'caller' was used to produce the variants provided.")
+  }
+
+  if(!file.exists(gene_expression)){
+    stop("The path to the gene_expression file is missing.")
+  }
+
+  # existence and column names
+  if(class(try(nrow(normal_variants))) %in% "try-error"){
+    stop("Panel of normal variants not provided in normal_variants argument")
+  }else{
+    check_columns <-
+      sum(!(c("nsam","minVAF") %>% colnames(normal_variants)))
+
+    if(check_columns > 0){
+      missing <- colnames(normal_variants)[!(c("nsam","minVAF") %>% colnames(normal_variants))]
+      stop(paste0("Check requirements for column names of normal_variants The following columns are missing: ",missing))
+    }
+  }
+
+  try_open1 <- exists_with_class(x = "exon_ranges", check_class =  "GRanges",silent = TRUE)
+  try_open2 <- exists_with_class(x = "homop_ranges", check_class =  "GRanges",silent = TRUE)
+  try_open3 <- exists_with_class(x = "RNAedit_ranges", check_class =  "GRanges",silent = TRUE)
+  try_open4 <- exists_with_class(x = "repeats_ranges", check_class =  "GRanges",silent = TRUE)
+  try_open <- c(try_open1,try_open2,try_open3,try_open4)
+  names(try_open) <- c("exon_ranges","homop_ranges","RNAedit_ranges","repeats_ranges")
+
+  if(!try_open1 | !try_open2 | !try_open3 | !try_open4){
+    stop(paste0("The GRanges annotation objects are missing for: ",
+                paste0(names(try_open)[c(!try_open1,!try_open2,!try_open3,!try_open4)],collapse=",")," are missing."))
+  }
+
+  #flag_patterns
+
+  if(!file.exists(path_to_gatk_coverage)){
+    stop("The path to the path_to_gatk_coverage file is missing.")
+  }
+
+  if(!exists("ncbi")){
+    stop("The NCBI dataset providing GeneIDs and SYMBOLs is missing")
+  }else{
+    check_columns <-
+      sum(!(c("GeneID","SYMBOL") %>% colnames(ncbi)))
+
+    if(check_columns > 0){
+      missing <- colnames(ncbi)[!(c("GeneID","SYMBOL") %>% colnames(ncbi))]
+      stop(paste0("Check requirements for column names of ncbi The following columns are missing: ",missing))
+    }
+  }
 
   #################################
   # 1. Read in Downsampled variants
@@ -141,11 +223,6 @@ variants_power <- function(vcfdir = vcf_germline_var,
   # Only select variants falling on genes that we have to study
   variants_down_filtered <- subset(variants_down_filtered, SYMBOL %in% truth_set$SYMBOL)
 
-  # Not really a good strategy but for the moment I will leave it. This step is beacuse later on I want to rbind all the calls
-  #if(caller == "mutect" | caller == "varscan"){
-  #  variants_down_filtered$ADJVAF_ADJ_indels <- NA
-  #} # use bind_rows
-
   # Initial
   variants_init_filtered <- flag_variants(variants = variants_init,
                                     normal_variants = normal_variants,
@@ -155,10 +232,6 @@ variants_power <- function(vcfdir = vcf_germline_var,
                                     RNAedit_ranges = RNAeditGR,
                                     repeats_ranges = repeatsGR)
   variants_init_filtered <- subset(variants_init_filtered, SYMBOL %in% truth_set$SYMBOL)
-
-  #if(caller == "mutect" | caller == "varscan"){
-  #  variants_init_filtered$ADJVAF_ADJ_indels <- NA
-  #}
 
   # Truth set: Variants in paper
   # 3. Read in coverage computed for every location - only for the 58 SNVs in the paper
@@ -174,30 +247,30 @@ variants_power <- function(vcfdir = vcf_germline_var,
   coverage_downsampled$down_label <- down_label
   coverage_downsampled$caller <- unique(variants_down_filtered$caller)
 
-
   ###################################################
   # Define if a SNV was called or not in this run:
   # Using defualt and annot filters as well as the match with the alt allele
   ###################################################
 
-  coverage_downsampled <- coverage_downsampled %>% mutate(Called_annot = ifelse(!is.na(Keep_annot) & Keep_annot,1,0),
-                                                          Called_defaults = ifelse(!is.na(Keep_defaults) & Keep_defaults,1,0),
-                                                          match_alt = ifelse(alt == alt_initial,1,0))
+  coverage_downsampled <- coverage_downsampled %>%
+    dplyr::mutate(Called_annot = ifelse(!is.na(Keep_annot) & Keep_annot,1,0),
+           Called_defaults = ifelse(!is.na(Keep_defaults) & Keep_defaults,1,0),
+           match_alt = ifelse(alt == alt_initial,1,0))
 
   # Alt is obtained from GATK both is the variant is called or not called so there will always an ALT
-  coverage_downsampled <- coverage_downsampled %>% mutate(Called_annot =  ifelse(Called_annot == 1 & match_alt == 1,1,0),
-                                                          Called_defaults = ifelse(Called_defaults == 1 & match_alt == 1,1,0))
-  # add GeneID
-  coverage_downsampled$GeneID <- ncbi$GeneID[match(coverage_downsampled$SYMBOL,ncbi$SYMBOL)]
+  coverage_downsampled <- coverage_downsampled %>%
+    dplyr::mutate(Called_annot =  ifelse(Called_annot == 1 & match_alt == 1,1,0),
+                  Called_defaults = ifelse(Called_defaults == 1 & match_alt == 1,1,0))
 
   # 4. Add gene expression counts
+  coverage_downsampled$GeneID <- ncbi$GeneID[match(coverage_downsampled$SYMBOL,ncbi$SYMBOL)]
   sampleNames <- as.character(unique(truth_set$SampleName))
   coverage_downsampled_expr <- add_log_rpkm(variants = coverage_downsampled,
                                             gene_expression = gene_expression,
                                           sample_names = sampleNames)
 
   # 5. Determine power of recovery
-  power <- variant_recovery_power(variants = coverage_downsampled,
+  power <- sensitivity_by_thresholds(variants = coverage_downsampled,
                                 truth_set = truth_set)
 
   #############################################
