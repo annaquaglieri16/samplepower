@@ -7,20 +7,30 @@ create_vaf <- function(vaf){
 }
 
 # Extract VAF from VarScan output
-VAFvarscan <- function(freq){
+parse_vaf_varscan <- function(freq){
   freq <- gsub("%","",freq)
   freq <- as.numeric(as.character(freq))/100
   return(freq)
 }
 
-VAFother <- function(freq){
+vaf_to_number <- function(freq){
   freq <- as.numeric(as.character(freq))
   return(freq)
 }
 
+# Nset
+n_normals <- function(set){
+  length(gregexpr("-", set)[[1]])+1
+}
 
-parsePON <- function(linkPON,caller="vardict"){
-  pon <- fread(linkPON,header = TRUE)
+# path_to_pon is the link to the file created with combinevariants using GATK
+
+parse_pon <- function(path_to_pon,
+                      caller){
+
+
+
+  pon <- fread(path_to_pon,header = TRUE)
   pon <- data.frame(pon)
 
 
@@ -29,9 +39,10 @@ parsePON <- function(linkPON,caller="vardict"){
   # determine the minimum VAF that each variant was called with
 
   if(caller %in% "varscan"){
+
     FREQcol <- grep("FREQ",colnames(pon))
     pon_FREQ <- pon[,FREQcol]
-    pon_VAF <- apply(pon_FREQ,2,function(x) VAFvarscan(x))
+    pon_VAF <- apply(pon_FREQ,2,function(x) parse_vaf_varscan(x))
     minVAF <- apply(pon_VAF,1,min,na.rm=TRUE)
     combine_vaf <- cbind(pon[,c("CHROM","POS","REF","ALT","set")],minVAF)
   }
@@ -39,17 +50,12 @@ parsePON <- function(linkPON,caller="vardict"){
   if(caller %in% c("mutect","vardict")){
     FREQcol <- grep(".AF",colnames(pon))
     pon_FREQ <- pon[,FREQcol]
-    pon_VAF <- apply(pon_FREQ,2,function(x) VAFother(x))
+    pon_VAF <- apply(pon_FREQ,2,function(x) vaf_to_number(x))
     minVAF <- apply(pon_VAF,1,min,na.rm=TRUE)
     combine_vaf <- cbind(pon[,c("CHROM","POS","REF","ALT","set")],minVAF)
   }
 
-  # Nset
-  Nsam <- function(set){
-    length(gregexpr("SRX", set)[[1]])
-  }
-  combine_vaf$nsam <- sapply(combine_vaf$set,function(entry_set) Nsam(entry_set))
-  combine_vaf$nsam_prop <- combine_vaf$nsam/17
+  combine_vaf$nsam <- sapply(combine_vaf$set,function(entry_set) n_normals(entry_set))
 
   return(combine_vaf)
 }
