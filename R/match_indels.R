@@ -68,12 +68,12 @@ match_indels <- function(truth_set,variants){
     if(length(over) < 1 ){
 
       df_indel <- data.frame(truth_indel)
-      colnames(df_indel) <- str_remove(colnames(df_indel),"mcols.")
+      colnames(df_indel) <- stringr::str_remove(colnames(df_indel),"mcols.")
 
     } else{
 
       df_indel <- cbind(data.frame(truth_indel),data.frame(mcols(callset_GR[subjectHits(over)])))
-      colnames(df_indel) <- str_remove(colnames(df_indel),"mcols.")
+      colnames(df_indel) <- stringr::str_remove(colnames(df_indel),"mcols.")
 
     }
 
@@ -82,7 +82,7 @@ match_indels <- function(truth_set,variants){
   })
 
   df_indel_merge <- do.call(bind_rows,match_truth_set)  %>%
-    rename(chrom = seqnames,
+    dplyr::rename(chrom = seqnames,
            pos = start) %>%
     dplyr::select(-width,-strand)
   return(df_indel_merge)
