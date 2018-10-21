@@ -64,6 +64,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # 0. Check column names and validity of files
   #########################################
 
+  print(paste0("Run: ",down_label, " Caller: ",caller))
+  print(Sys.time())
+
   if(length(variant_files) < 1){
     stop("No downsampled variant files available in input")
   }
@@ -72,23 +75,26 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("No initial variant files available in input")
   }
 
-  if(!exists_with_class("down_label","character")){
+
+  search_env <- pryr::where("down_label")
+  if(!exists_with_class( "down_label","character",where = search_env)){
     stop("down_label (label for the downsampled run) was not specified")
   }
 
   # Truth set - existence and column names
   if(is.na(truth_set)){
     stop("No set of true variants provided.")
-  } else{
-    check_columns <-
-      sum(!(c("chrom","pos","Locus","alt_initial","ref",
-              "VARIANT_CLASS","SYMBOL","Feature","SampleName") %>% colnames(truth_set)))
+  } else {
 
-    if(check_columns > 0){
-      missing <- colnames(truth_set)[!(c("chrom","pos","Locus","alt_initial","ref",
-                     "VARIANT_CLASS","SYMBOL","Feature","SampleName") %>% colnames(truth_set))]
-      stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
-    }
+    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","VARIANT_CLASS","SYMBOL","Feature","SampleName")
+
+    check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
+
+      if(check_columns > 0){
+        missing <- colnames(truth_set)[!(c("chrom","pos","Locus","alt_initial","ref",
+                       "VARIANT_CLASS","SYMBOL","Feature","SampleName") %in% colnames(truth_set))]
+        stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
+      }
   }
 
   if(is.na(caller)){
@@ -104,18 +110,18 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("Panel of normal variants not provided in normal_variants argument")
   }else{
     check_columns <-
-      sum(!(c("nsam","minVAF") %>% colnames(normal_variants)))
+      sum(!(c("nsam","minVAF") %in% colnames(normal_variants)))
 
     if(check_columns > 0){
-      missing <- colnames(normal_variants)[!(c("nsam","minVAF") %>% colnames(normal_variants))]
+      missing <- colnames(normal_variants)[!(c("nsam","minVAF") %in% colnames(normal_variants))]
       stop(paste0("Check requirements for column names of normal_variants The following columns are missing: ",missing))
     }
   }
 
-  try_open1 <- exists_with_class(x = "exon_ranges", check_class =  "GRanges",silent = TRUE)
-  try_open2 <- exists_with_class(x = "homop_ranges", check_class =  "GRanges",silent = TRUE)
-  try_open3 <- exists_with_class(x = "RNAedit_ranges", check_class =  "GRanges",silent = TRUE)
-  try_open4 <- exists_with_class(x = "repeats_ranges", check_class =  "GRanges",silent = TRUE)
+  try_open1 <- exists_with_class(obj = "exon_ranges", check_class =  "GRanges",silent = TRUE,where = search_env)
+  try_open2 <- exists_with_class(obj = "homop_ranges", check_class =  "GRanges",silent = TRUE,where = search_env)
+  try_open3 <- exists_with_class(obj = "RNAedit_ranges", check_class =  "GRanges",silent = TRUE,where = search_env)
+  try_open4 <- exists_with_class(obj = "repeats_ranges", check_class =  "GRanges",silent = TRUE,where = search_env)
   try_open <- c(try_open1,try_open2,try_open3,try_open4)
   names(try_open) <- c("exon_ranges","homop_ranges","RNAedit_ranges","repeats_ranges")
 
@@ -134,10 +140,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("The NCBI dataset providing GeneIDs and SYMBOLs is missing")
   }else{
     check_columns <-
-      sum(!(c("GeneID","SYMBOL") %>% colnames(ncbi)))
+      sum(!(c("GeneID","SYMBOL") %in% colnames(ncbi)))
 
     if(check_columns > 0){
-      missing <- colnames(ncbi)[!(c("GeneID","SYMBOL") %>% colnames(ncbi))]
+      missing <- colnames(ncbi)[!(c("GeneID","SYMBOL") %in% colnames(ncbi))]
       stop(paste0("Check requirements for column names of ncbi The following columns are missing: ",missing))
     }
   }
@@ -147,8 +153,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   #################################
 
   # Germline - read variants in for the run
-  names_samples <- gsub("_germline_final.txt","",basename(vcfdir))
-  list_variants <- lapply(vcfdir,function(x){
+  names_samples <- gsub("_germline_final.txt","",basename(variant_files))
+  list_variants <- lapply(variant_files,function(x){
     read.delim(x,fill=TRUE, stringsAsFactors = FALSE)}
     )
 
@@ -178,8 +184,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # 1. Read in Initial variants
   #############################
 
-  names_samples <- gsub("_germline_final.txt","",basename(vcfdir_initial))
-  list_variants <- lapply(vcfdir_initial,
+  names_samples <- gsub("_germline_final.txt","",basename(variant_files_initial))
+  list_variants <- lapply(variant_files_initial,
                           function(x){
                             read.delim(x,fill=TRUE, stringsAsFactors = FALSE)}
                           )
@@ -206,6 +212,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                           )
   variants_init <- do.call(rbind,variants_init)
 
+  print("Important fields extracted.")
+
   ##############
   # 2. Filtering
   ##############
@@ -220,6 +228,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                     RNAedit_ranges = RNAeditGR,
                                     repeats_ranges = repeatsGR)
 
+  print("Downsampled variant flagged.")
+
   # Only select variants falling on genes that we have to study
   variants_down_filtered <- subset(variants_down_filtered, SYMBOL %in% truth_set$SYMBOL)
 
@@ -232,6 +242,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                     RNAedit_ranges = RNAeditGR,
                                     repeats_ranges = repeatsGR)
   variants_init_filtered <- subset(variants_init_filtered, SYMBOL %in% truth_set$SYMBOL)
+
+  print("Initial variant flagged.")
 
   # Truth set: Variants in paper
   # 3. Read in coverage computed for every location - only for the 58 SNVs in the paper
@@ -269,9 +281,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                             gene_expression = gene_expression,
                                           sample_names = sampleNames)
 
+
   # 5. Determine power of recovery
   power <- sensitivity_by_thresholds(variants = coverage_downsampled,
                                 truth_set = truth_set)
+
+  print("Sensitivity computed for SNVs.")
 
   #############################################
   ## Sens and FP using initial set as truth set
@@ -326,6 +341,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   sens = c(sens_defaults,sens_annot)
   names(sens) <- c("defaults","annotations")
 
+  print("Sensitivity using the initial set as truth set computed for SNVs.")
+
   #############
   # Compute FP
   #############
@@ -333,7 +350,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # 1. only take those variants that matched a variant called in the initial set with default parameters
   # Sum the keep_defaults from the downsampled dataset
 
-  variants_passed_in_initial_defaults <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_defaults]
+  var_passed_in_initial_defaults <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_defaults]
 
   # Number of variantscalled in the downsmapled call set nott present in the initial call set
   fpn_defaults <- sum(variants_down_filtered_unique$Keep_defaults[!(variants_down_filtered_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
@@ -349,6 +366,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   power_init <- list(sens = sens,
                      fp = fp,
                      variants_init_filtered_unique = variants_init_filtered_unique)
+
+  print("False Positive rate using the initial set as truth set computed for SNVs.")
 
   ######################################################
   # Add flag in the variant set: 1 if FP and 0 otherwise
@@ -370,6 +389,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                               gene_expression = gene_expression,
                                               sample_names = sampleNames)
 
+  print("Gene expression added.")
+
   #####################
   # Recovery of INDELS
   #####################
@@ -385,6 +406,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # See how many variants from the truth set are recovered
   indels_paper_recovery <- match_indels(truth_set = indels_paper,
                                         variants = indels_caller)
+
+  print("Indels matched with external truth set.")
 
   # The sensitivity will be donw with Manual curation to see if the INDELs were called and outside of the function I will compute the sensitivity.
 
@@ -441,6 +464,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   sens_indels = c(sens_defaults_indels,sens_annot_indels)
   names(sens_indels) <- c("defaults","annotations")
 
+  print("Sensitivity using the initial set as truth set computed for INDELs.")
+
   # False positives
   # summ all the variants called by a caller in the downsampled set that are not in the initial set
   # 1. only take those variants that matched a variant called in the initial set with default parameters
@@ -460,7 +485,11 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                             fp = fp_indels,
                             indels_init_filtered_unique = indels_init_filtered_unique)
 
+  print("FP rate using the initial set as truth set computed for INDELs.")
 
+  print("Analysis completed")
+  print("")
+  print("")
 
   # return results
   list(power=power, # sensitivyt overall with paper variants

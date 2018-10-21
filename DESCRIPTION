@@ -2,7 +2,7 @@ Package: samplepower
 Type: Package
 Title: Compute sensitivity and false positive rates for a variant call set with repsect to a truth dataset.
 Version: 0.1.0
-Depends: R (>= 3.5.1)
+Depends: R (>= 3.5.0)
 Author: Anna Quaglieri
 Maintainer: <quaglieri.a@wehi.edu.au>
 Description: This package contains functions to use dowstream of a variant calling pipeline for RNA-Seq developed in rnapiper. The set of function are useful to parse the variants across different parsed VCF files and evaluate sensitivity and false positive rates woth respect to a truth set.
