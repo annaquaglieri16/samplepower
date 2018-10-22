@@ -58,7 +58,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                            repeats_ranges,
                            ncbi,
                            flag_patterns,
-                           path_to_gatk_coverage){
+                           path_to_gatk_coverage,
+                           TCGA=FALSE){
 
   #########################################
   # 0. Check column names and validity of files
@@ -82,17 +83,17 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   }
 
   # Truth set - existence and column names
-  if(is.na(truth_set)){
+  if(!exists("truth_set")){
     stop("No set of true variants provided.")
   } else {
 
-    need_colmuns <- c("chrom","pos","Location","alt_initial","ref","VARIANT_CLASS","SYMBOL","Feature","SampleName")
+    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","variant_type","SYMBOL","Feature","SampleName")
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
       if(check_columns > 0){
-        missing <- colnames(truth_set)[!(c("chrom","pos","Location","alt_initial","ref",
-                       "VARIANT_CLASS","SYMBOL","Feature","SampleName") %in% colnames(truth_set))]
+        need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","variant_type","SYMBOL","Feature","SampleName")
+        missing <- need_colmuns[!(need_colmuns %in% colnames(truth_set))]
         stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
       }
   }
@@ -101,10 +102,16 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("Specify which 'caller' was used to produce the variants provided.")
   }
 
-  if(!file.exists(gene_expression)){
+  if(!exists("gene_expression")){
     add_gene_counts <- FALSE
-    warnings("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
-  } else { add_gene_counts = TRUE}
+    warning("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
+  } else {
+      if(!file.exists(gene_expression)){
+        stop("Path to gene_expression provided but file does not exist.")
+      }else{
+        add_gene_counts = TRUE
+      }
+  }
 
   # existence and column names
   if(class(try(nrow(normal_variants))) %in% "try-error"){
@@ -133,8 +140,15 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   #flag_patterns
 
-  if(!file.exists(path_to_gatk_coverage)){
-    stop("The path to the path_to_gatk_coverage file is missing.")
+  if(!exists("path_to_gatk_coverage")){
+    add_gatk_dop <- FALSE
+    warning("The path to the path_to_gatk_coverage file is missing. The alt and tot depth from GATK depth of coverage won't be reported.")
+  } else {
+    if(!file.exists(path_to_gatk_coverage)){
+      stop("Path to path_to_gatk_coverage provided but file does not exist.")
+    }else{
+      add_gatk_dop = TRUE
+    }
   }
 
   if(!exists("ncbi")){
@@ -144,8 +158,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
       sum(!(c("GeneID","SYMBOL") %in% colnames(ncbi)))
 
     if(check_columns > 0){
-      missing <- colnames(ncbi)[!(c("GeneID","SYMBOL") %in% colnames(ncbi))]
-      stop(paste0("Check requirements for column names of ncbi The following columns are missing: ",missing))
+      needs_column <- c("GeneID","SYMBOL")
+      missing <- needs_column[!(needs_column %in% c("GeneID","SYMBOL"))]
+      stop(paste0("Check requirements for column names of NCBI. The following columns are missing: ",missing))
     }
   }
 
@@ -177,9 +192,13 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # In the step below variants not on genes are removed to reduce the size of the call set
   down_variants_sub <- lapply(1:length(list_variants),
                               function(index){
-                                extract_fields(list_variants[[index]],label=down_label)}
+                                extract_fields(list_variants[[index]],label=down_label,TCGA=TCGA)}
                               )
   down_variants_sub <- do.call(rbind,down_variants_sub)
+
+  # Only consider canonical chromosomes
+  chroms <- c(paste0("chr",1:22),"chrX","chrY","chrM")
+  down_variants_sub <- down_variants_sub %>% dplyr::filter(chrom %in% chroms)
 
   #############################
   # 1. Read in Initial variants
@@ -209,9 +228,13 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # In the step below variants not on genes are removed to reduce the size of the call set
   variants_init <- lapply(1:length(list_variants),
                           function(index){
-                            extract_fields(list_variants[[index]],label=down_label)}
+                            extract_fields(list_variants[[index]],label=down_label,TCGA=TCGA)}
                           )
   variants_init <- do.call(rbind,variants_init)
+
+  # Only consider canonical chromosomes
+  chroms <- c(paste0("chr",1:22),"chrX","chrY","chrM")
+  variants_init <- variants_init %>% dplyr::filter(chrom %in% chroms)
 
   print("Important fields extracted.")
 
@@ -226,8 +249,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                     flag_patterns = flag_patterns,
                                     exon_ranges = exon_ranges,
                                     homop_ranges = homop_ranges,
-                                    RNAedit_ranges = RNAeditGR,
-                                    repeats_ranges = repeatsGR)
+                                    RNAedit_ranges = RNAedit_ranges,
+                                    repeats_ranges = repeats_ranges)
 
   print("Downsampled variant flagged.")
 
@@ -240,8 +263,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                     flag_patterns = flag_patterns,
                                     exon_ranges = exon_ranges,
                                     homop_ranges = homop_ranges,
-                                    RNAedit_ranges = RNAeditGR,
-                                    repeats_ranges = repeatsGR)
+                                    RNAedit_ranges = RNAedit_ranges,
+                                    repeats_ranges = repeats_ranges)
+
   variants_init_filtered <- subset(variants_init_filtered, SYMBOL %in% truth_set$SYMBOL)
 
   print("Initial variant flagged.")
@@ -249,12 +273,28 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # Truth set: Variants in paper
   # 3. Read in coverage computed for every Location - only for the 58 SNVs in the paper
   # Downsampled
-  coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set,
-                                         path_to_gatk_coverage = as.character(path_to_gatk_coverage))
+
+  coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set[truth_set$variant_type %in% "SNV",],
+                                         path_to_gatk_coverage = as.character(path_to_gatk_coverage),TCGA=TCGA)
+
+  sum(!(coverage_downsampled$SampleName %in% variants_down_filtered$SampleName ))
 
   # VAF_GATK will be from GATK depth of Cov and VAF the estimate from each caller
+  if(TCGA){
+    variants_down_filtered1 <- unique(variants_down_filtered %>% select(chrom,pos,ref,alt,qual,filter,genotype,tot_depth ,VAF,ref_depth,
+                                                                 alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
+                                                                 variant_type,Exon_edge,RepeatMasker,Homopolymers,
+                                                                 Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,germline_somatic,Flag_defaults,Flag_annot,
+                                                                 PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
+    coverage_downsampled1 <- unique(merge(coverage_downsampled,
+                                          variants_down_filtered1,all.x=TRUE))
+
+  }else{
   coverage_downsampled <- unique(merge(coverage_downsampled,
                                        variants_down_filtered,all.x=TRUE))
+  }
+
+  print("Added GATK total and alt depth.")
 
   # Add label for downsampling run and caller
   coverage_downsampled$down_label <- down_label
@@ -407,8 +447,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   #####################
 
   # Select everything thet it is not a SNV: deletions, insetions. indels, substitutions
-  indels_paper <- subset(truth_set,VARIANT_CLASS %in% "INDEL")
-  indels_caller <- subset(variants_down_filtered_expr,!(VARIANT_CLASS %in% "SNV"))
+  indels_paper <- subset(truth_set,variant_type %in% "INDEL")
+  indels_caller <- subset(variants_down_filtered_expr,!(variant_type %in% "SNV"))
 
   # Check if the variant passes the annotation filter or the default filters: Keep it only if it passes
   indels_caller$Called_annot <- ifelse(!is.na(indels_caller$Keep_annot) & indels_caller$Keep_annot,1,0)
@@ -432,7 +472,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   ## Sens and FP using initial set as truth for INDELs for which I don't need manual curation
   #############################################################
 
-  indels_init_filtered <- subset(variants_init_filtered,!(VARIANT_CLASS %in% "SNV"))
+  indels_init_filtered <- subset(variants_init_filtered,!(variant_type %in% "SNV"))
 
   # called in the initial deep sequenced data
   indels_init_filtered$key1_SampleName <- paste(indels_init_filtered$chrom,

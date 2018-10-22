@@ -30,17 +30,23 @@ flag_variants <- function(variants,
                                                    (Location_alt %in% normal_variants_lessthan2$Location_alt) ~ 1,
                                                     TRUE ~ 0))
 
+  print("Variants present in normals flagged.")
+
   # 2. COSMIC
   variants$COSMIC <- 0
   variants$COSMIC[grep("COSM",variants$Existing_variation)] <- 1
+  print("Variants present in COSMIC flagged.")
+
 
   # 3. EXAC rare
   variants$EXAC_rare <- ifelse(!is.na(variants$ExAC_AF) & variants$ExAC_AF <= 0.01, 1,0)
   variants$EXAC_common <- ifelse(!is.na(variants$ExAC_AF) & variants$ExAC_AF > 0.01, 1,0)
+  print("Rare and common ExAC variants flagged.")
 
   # 4. dbSNP
   variants$dbSNP <- 0
   variants$dbSNP[grep("rs",variants$Existing_variation)] <- 1
+  print("dbSNP variants flagged.")
 
   # Exon boundaries
   tot_range <- GenomicRanges::GRanges(seqnames = variants$chrom,
@@ -52,6 +58,8 @@ flag_variants <- function(variants,
   if(length(S4Vectors::queryHits(over_end)) > 0){
     variants$Exon_edge[S4Vectors::queryHits(over_end)] <- 1
   }
+  print("Variants over exon boundaries flagged.")
+
 
   # Over RNA editing sites
   over_RNAedit <- GenomicRanges::findOverlaps(tot_range,RNAedit_ranges)
@@ -59,6 +67,7 @@ flag_variants <- function(variants,
   if(length(S4Vectors::queryHits(over_RNAedit)) > 0){
     variants$RADAR[S4Vectors::queryHits(over_RNAedit)] <- 1
   }
+  print("Variants over RNA editing sites flagged.")
 
   # Repetitive regions
   over_end <- GenomicRanges::findOverlaps(tot_range,repeats_ranges)
@@ -66,6 +75,7 @@ flag_variants <- function(variants,
   if(length(S4Vectors::queryHits(over_end)) > 0){
     variants$RepeatMasker[S4Vectors::queryHits(over_end)] <- 1
   }
+  print("Variants over repetitive regions flagged.")
 
   # Homoplymers > 5
   over_end <- GenomicRanges::findOverlaps(tot_range,homop_ranges)
@@ -73,6 +83,7 @@ flag_variants <- function(variants,
   if(length(S4Vectors::queryHits(over_end)) > 0){
     variants$Homopolymers[S4Vectors::queryHits(over_end)] <- 1
   }
+  print("Variants over homopolymer regions > 5bp flagged.")
 
   ########################################################
   # Add quality flag based on default filtering strategies
