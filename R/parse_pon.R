@@ -29,10 +29,16 @@ parse_pon <- function(path_to_pon,
                       caller){
 
 
+  if(!file.exists(path_to_pon)){
+    stop("path_to_pon does not exist.")
+  }
 
-  pon <- fread(path_to_pon,header = TRUE)
+  if( sum(caller %in% c("varscan","mutect","vardict")) < 1){
+    stop("Caller has to be one of: 'vardict', 'varscan' or 'mutect'")
+  }
+
+  pon <- data.table::fread(path_to_pon,header = TRUE)
   pon <- data.frame(pon)
-
 
   # Extract VAF for every variant called by the caller
   # dtermine number of normal samples where eah variant was called
@@ -56,6 +62,7 @@ parse_pon <- function(path_to_pon,
   }
 
   combine_vaf$nsam <- sapply(combine_vaf$set,function(entry_set) n_normals(entry_set))
+  combine_vaf$Location <- paste(combine_vaf$CHROM,combine_vaf$POS,sep="_")
 
   return(combine_vaf)
 }

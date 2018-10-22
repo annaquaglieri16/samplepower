@@ -34,7 +34,7 @@
 
 
 # Fields from truth set needed to be that column name
-# Locus: chr:position (same as ouput from GATK coverage)
+# Location: chr:position (same as ouput from GATK coverage)
 # alt_initial: alt allele of initial dataset. Needs to be distinguished form the alt in the call set
 # ref : reference allele
 # SampleName : SRX name
@@ -86,12 +86,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("No set of true variants provided.")
   } else {
 
-    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","VARIANT_CLASS","SYMBOL","Feature","SampleName")
+    need_colmuns <- c("chrom","pos","Location","alt_initial","ref","VARIANT_CLASS","SYMBOL","Feature","SampleName")
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
       if(check_columns > 0){
-        missing <- colnames(truth_set)[!(c("chrom","pos","Locus","alt_initial","ref",
+        missing <- colnames(truth_set)[!(c("chrom","pos","Location","alt_initial","ref",
                        "VARIANT_CLASS","SYMBOL","Feature","SampleName") %in% colnames(truth_set))]
         stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
       }
@@ -246,7 +246,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   print("Initial variant flagged.")
 
   # Truth set: Variants in paper
-  # 3. Read in coverage computed for every location - only for the 58 SNVs in the paper
+  # 3. Read in coverage computed for every Location - only for the 58 SNVs in the paper
   # Downsampled
   coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set,
                                          path_to_gatk_coverage = as.character(path_to_gatk_coverage))
@@ -413,7 +413,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Reorder columns
   indels_paper_recovery <- indels_paper_recovery %>%
-    dplyr::select(chrom,pos,ref,alt,alt_initial,Mutation,Locus,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
+    dplyr::select(chrom,pos,ref,alt,alt_initial,Mutation,Location,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
                   type_indel,type_indel2,caller,down_label,key_SampleName,SampleName,everything())
 
 
@@ -488,8 +488,6 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   print("FP rate using the initial set as truth set computed for INDELs.")
 
   print("Analysis completed")
-  print("")
-  print("")
 
   # return results
   list(power=power, # sensitivyt overall with paper variants
