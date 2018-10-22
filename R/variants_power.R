@@ -102,8 +102,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   }
 
   if(!file.exists(gene_expression)){
-    stop("The path to the gene_expression file is missing.")
-  }
+    add_gene_counts <- FALSE
+    warnings("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
+  } else { add_gene_counts = TRUE}
 
   # existence and column names
   if(class(try(nrow(normal_variants))) %in% "try-error"){
@@ -277,9 +278,14 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # 4. Add gene expression counts
   coverage_downsampled$GeneID <- ncbi$GeneID[match(coverage_downsampled$SYMBOL,ncbi$SYMBOL)]
   sampleNames <- as.character(unique(truth_set$SampleName))
+
+  if(add_gene_counts){
   coverage_downsampled_expr <- add_log_rpkm(variants = coverage_downsampled,
                                             gene_expression = gene_expression,
                                           sample_names = sampleNames)
+  }else{
+    coverage_downsampled_expr <- coverage_downsampled
+  }
 
 
   # 5. Determine power of recovery
@@ -385,9 +391,14 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Add gene ID and expression
   variants_down_filtered$GeneID <- ncbi$GeneID[match(variants_down_filtered$SYMBOL,ncbi$SYMBOL)]
+
+  if ( add_gene_counts ) {
   variants_down_filtered_expr <- add_log_rpkm(variants = variants_down_filtered,
                                               gene_expression = gene_expression,
                                               sample_names = sampleNames)
+  } else {
+    variants_down_filtered_expr <- variants_down_filtered
+  }
 
   print("Gene expression added.")
 
