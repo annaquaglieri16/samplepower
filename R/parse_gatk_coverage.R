@@ -74,22 +74,22 @@ parse_gatk_coverage <- function(path_to_gatk_coverage,
   # Extract tot depth and alt depth
   alt_allele_counts <- NULL
   tot_depth_counts <- NULL
-  for(i in 1:nrow(cov_initial_snv)){
-    alt_allele_counts <- c(alt_allele_counts,extract_depth_allele(cov_initial_snv[i,],TCGA=TCGA))
+  for(i in 1:nrow(cov)){
+    alt_allele_counts <- c(alt_allele_counts,extract_depth_allele(cov[i,],TCGA=TCGA))
     tot_depth_counts <- c(tot_depth_counts,extract_tot_depth(cov_initial_snv[i,],TCGA=TCGA))
   }
 
-  cov_initial_snv$alt_depth_GATK <- as.numeric(as.character(alt_allele_counts))
-  cov_initial_snv$tot_depth_GATK <- as.numeric(as.character(tot_depth_counts))
+  cov$alt_depth_GATK <- as.numeric(as.character(alt_allele_counts))
+  cov$tot_depth_GATK <- as.numeric(as.character(tot_depth_counts))
 
-  base_counts_depth <- c(colnames(cov_initial_snv)[grep("Depth_for_",colnames(cov_initial_snv))],
-                         colnames(cov_initial_snv)[grep("_base_counts",colnames(cov_initial_snv))])
+  base_counts_depth <- c(colnames(cov)[grep("Depth_for_",colnames(cov))],
+                         colnames(cov)[grep("_base_counts",colnames(cov))])
 
   # Remove a lot of the extra columns
-  cov_initial_snv <- cov_initial_snv[,!(colnames(cov_initial_snv)  %in% c(base_counts_depth,"Total_Depth","Average_Depth_sample"))]
-  cov_initial_snv$VAF_GATK <- cov_initial_snv$alt_depth_GATK/cov_initial_snv$tot_depth_GATK
+  cov <- cov[,!(colnames(cov)  %in% c(base_counts_depth,"Total_Depth","Average_Depth_sample"))]
+  cov$VAF_GATK <- cov$alt_depth_GATK/cov$tot_depth_GATK
 
-  return(cov_initial_snv)
+  return(cov)
 
 }
 
