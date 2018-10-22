@@ -68,7 +68,7 @@ parse_gatk_coverage <- function(path_to_gatk_coverage,
   # Create key column to combine cov with mutation information and get the alt and ref alleles from the initial set of variants
   # since the allele were not reported in the paper (= truth set)
 
-  cov <- merge(cov,truth_set,all.x=TRUE)
+  cov <- merge(truth_set,cov,all.x=TRUE)
   #cov$Location <- gsub(":","_",cov$Locus)fVARI
 
   # Extract tot depth and alt depth
@@ -76,7 +76,7 @@ parse_gatk_coverage <- function(path_to_gatk_coverage,
   tot_depth_counts <- NULL
   for(i in 1:nrow(cov)){
     alt_allele_counts <- c(alt_allele_counts,extract_depth_allele(cov[i,],TCGA=TCGA))
-    tot_depth_counts <- c(tot_depth_counts,extract_tot_depth(cov_initial_snv[i,],TCGA=TCGA))
+    tot_depth_counts <- c(tot_depth_counts,extract_tot_depth(cov[i,],TCGA=TCGA))
   }
 
   cov$alt_depth_GATK <- as.numeric(as.character(alt_allele_counts))
