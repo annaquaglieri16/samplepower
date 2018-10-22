@@ -69,7 +69,7 @@ parse_gatk_coverage <- function(path_to_gatk_coverage,
   # since the allele were not reported in the paper (= truth set)
 
   cov <- merge(cov,truth_set,all.x=TRUE)
-  #cov$Location <- gsub(":","_",cov$Locus)
+  #cov$Location <- gsub(":","_",cov$Locus)fVARI
 
   # Extract tot depth and alt depth
   alt_allele_counts <- NULL
