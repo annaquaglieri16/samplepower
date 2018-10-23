@@ -47,10 +47,9 @@
 variants_power <- function(variant_files, # vector of path aiming at the final parsed files germline_final.txt
                            variant_files_initial, # vector of path aiming at the final parsed files germline_final.txt of the initial run
                            down_label = NA,
-                           germline = TRUE,
                            truth_set = NA,
                            caller,
-                           gene_expression,
+                           gene_expression = NA,
                            normal_variants,
                            exon_ranges,
                            homop_ranges,
@@ -83,7 +82,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   }
 
   # Truth set - existence and column names
-  if(!exists("truth_set")){
+  if(!exists("truth_set",where = search_env)){
     stop("No set of true variants provided.")
   } else {
 
@@ -102,16 +101,30 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("Specify which 'caller' was used to produce the variants provided.")
   }
 
-  if(!exists("gene_expression")){
+
+  #if(!exists("gene_expression",where = search_env)){
+  #  add_gene_counts <- FALSE
+  #  warning("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
+  #} else {
+  #    if(!file.exists(gene_expression)){
+  #      stop("Path to gene_expression provided but file does not exist.")
+  #    }else{
+  #      add_gene_counts = TRUE
+  #    }
+  #}
+
+  print(is.na(gene_expression))
+  if(is.na(gene_expression)){
     add_gene_counts <- FALSE
     warning("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
   } else {
-      if(!file.exists(gene_expression)){
-        stop("Path to gene_expression provided but file does not exist.")
-      }else{
-        add_gene_counts = TRUE
-      }
+    if(!file.exists(gene_expression)){
+      stop("Path to gene_expression provided but file does not exist.")
+    }else{
+      add_gene_counts = TRUE
+    }
   }
+
 
   # existence and column names
   if(class(try(nrow(normal_variants))) %in% "try-error"){
