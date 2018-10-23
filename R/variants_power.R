@@ -287,8 +287,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # 3. Read in coverage computed for every Location - only for the 58 SNVs in the paper
   # Downsampled
 
-  coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set[truth_set$variant_type %in% "SNV" & truth_set$PresentInRNA == 1,],
-                                         path_to_gatk_coverage = as.character(path_to_gatk_coverage),TCGA=TCGA)
+  coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set[truth_set$variant_type %in% "SNV",],
+                                         path_to_gatk_coverage = as.character(path_to_gatk_coverage),
+                                         TCGA=TCGA)
 
   # VAF_GATK will be from GATK depth of Cov and VAF the estimate from each caller
   if(TCGA){
