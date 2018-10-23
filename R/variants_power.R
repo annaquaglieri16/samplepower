@@ -113,7 +113,6 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   #    }
   #}
 
-  print(is.na(gene_expression))
   if(is.na(gene_expression)){
     add_gene_counts <- FALSE
     warning("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
