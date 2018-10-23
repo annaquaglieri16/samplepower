@@ -1,15 +1,16 @@
 
-match_indels <- function(truth_set,variants){
+match_indels <- function(truth_set,variants,use_transcript){
 
+  # If an INDELS is reported in the truth set with a start != end then I will use this range to find an overlap?
   if ("pos" %in% colnames(truth_set)){
     start_var <- as.numeric(as.character(truth_set$pos))
     end_var <- as.numeric(as.character(truth_set$pos))
   } else {
-    if ( "start" %in% colnames(truth_set) & "end" %in% colnames(truth_set) ) {
-      start_var <- as.numeric(as.character(truth_set$start))
+    if ( "pos" %in% colnames(truth_set) & "end" %in% colnames(truth_set) ) {
+      start_var <- as.numeric(as.character(truth_set$pos))
       end_var <- as.numeric(as.character(truth_set$end))
     } else {
-      stop("truth_set needs to include either a 'pos' column or a 'start' and 'end' column.")
+      stop("truth_set needs to include either a 'pos' column or a 'pos' and 'end' column.")
     }
   }
 
@@ -25,14 +26,29 @@ match_indels <- function(truth_set,variants){
     stop("truth_set requires a 'SampleName' column")
   }
 
-  if( !("Feature" %in% colnames(truth_set))){
-    stop("truth_set requires a 'Feature' which indicates the 'ensembl_transcript_id' column.")
+  if(use_transcript){
+    if( !("Feature" %in% colnames(truth_set))){
+      stop("truth_set requires a 'Feature' which indicates the 'ensembl_transcript_id' column.")
+    }
   }
 
-  if( !("SampleName" %in% colnames(variants)) |
-      !("Feature" %in% colnames(variants)) |
-      !("SYMBOL" %in% colnames(variants))  ){
-    stop("variants requires: 'SampleName', 'Feature' for ensembl_transcript_id transcript name and 'SYMBOL' columns")
+  if(use_transcript){
+
+    need_colmuns <- c("SampleName","Feature","SYMBOL")
+    check_columns <- sum(!(need_colmuns %in% colnames(variants)))
+
+    if(check_columns > 0){
+      missing <- need_colmuns[!(need_colmuns %in% colnames(variants))]
+      stop(paste0("Check requirements for column names of 'variants' The following columns are missing: ",missing))
+    }
+  }else{
+    need_colmuns <- c("SampleName","SYMBOL")
+    check_columns <- sum(!(need_colmuns %in% colnames(variants)))
+
+    if(check_columns > 0){
+      missing <- need_colmuns[!(need_colmuns %in% colnames(variants))]
+      stop(paste0("Check requirements for column names of 'variants' The following columns are missing: ",missing))
+    }
   }
 
   # Create GRanges of truth set
@@ -44,26 +60,36 @@ match_indels <- function(truth_set,variants){
   # as a final result I want to obtain a data frame with ncol >= than ncol(truth_set) that for every variant in the truth set it gives me
   # the match with a variant in the downsampled set and all the information next to it.
 
-  # for each variant in the truth set: maybe I should use the foreach function
+  # for each variant in the truth set
   match_truth_set <- sapply(1:length(truth_set_GR), function(index_indel){
 
+    # 1. Select one indel
     truth_indel <- truth_set_GR[index_indel]
 
-    # 1. Reduce search space
+    # 2. Reduce search space using only information in truth set
     samplename <- as.character(mcols(truth_indel)$mcols.SampleName)
     gene <- as.character(mcols(truth_indel)$mcols.SYMBOL)
-    transcript <- as.character(mcols(truth_indel)$mcols.Feature)
 
-    callset_indel <- variants %>% filter(SampleName %in% samplename,
+    if(use_transcript){
+
+      transcript <- as.character(mcols(truth_indel)$mcols.Feature)
+
+      callset_indel <- variants %>% filter(SampleName %in% samplename,
                                                 SYMBOL %in% gene,
-                                                Feature %in% transcript) # Feature :/
+                                                Feature %in% transcript)
+    } else {
+
+      callset_indel <- variants %>% filter(SampleName %in% samplename,
+                                           SYMBOL %in% gene)
+
+    }
 
     df <- callset_indel %>% dplyr::select(-chrom,-pos)
     callset_GR <- GRanges(seqnames = callset_indel$chrom,
-                          IRanges(start = as.numeric(as.character(callset_indel$pos)),
-                                  end = as.numeric(as.character(callset_indel$pos))),mcols=df)
+                            IRanges(start = as.numeric(as.character(callset_indel$pos)),
+                                    end = as.numeric(as.character(callset_indel$pos))),mcols=df)
 
-    over <- findOverlaps(query = truth_indel,subject = callset_GR,maxgap = 30)
+    over <- findOverlaps(query = truth_indel,subject = callset_GR,maxgap = 50)
 
     if(length(over) < 1 ){
 
