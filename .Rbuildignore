@@ -1,2 +1,3 @@
-^.*\.Rproj$
+^samplepower\.Rproj$
 ^\.Rproj\.user$
+^.*\.Rproj$

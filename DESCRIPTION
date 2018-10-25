@@ -18,5 +18,4 @@ Imports:
   stringr,
   edgeR,
   data.table
-  
-
+RoxygenNote: 6.1.0

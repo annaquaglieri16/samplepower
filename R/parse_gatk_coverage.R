@@ -1,96 +1,100 @@
-# Parse coverage file
-# coverage file - using the mut_infos I should be able to annotate the coverage
-# head(mut_infos)
 
-# Output in the coverage file from GATK:
-# one row per variant that was given to GATK
-# Two columns for every sample (bamfile): 1) Depth_for_Sample 2) Sample_base_counts
-# I need to
-
-# Function to extract the depth of coverage of the alt allele for the sample of interest from every row
-# To extract the exact depth. I need to know for each variant (row) what's the sample and the alternative allele for which I have to extract the depth
-extract_depth_allele <- function(row_gatk_coverage,TCGA=FALSE){
-
-  if(TCGA){ # quite of a bad fix just for TCGA names
-    sample <- gsub("-",".",as.character(row_gatk_coverage$SampleNameShort))
-    base_counts_columns <- colnames(row_gatk_coverage)[grep("_base_counts",colnames(row_gatk_coverage))]
-    sample_pmatch <- grep(sample,base_counts_columns)
-    column_name <- base_counts_columns[sample_pmatch]
-  }else{
-    sample <- as.character(row_gatk_coverage$SampleName)
-    column_name <- paste0(sample,"_base_counts")
-  }
-
-  alt <- row_gatk_coverage$alt_initial
-
-
-  if(is.na(alt)) { # if there is not available alt allele since I wasn't able to detect it in the initial set
-    alt_dep <- NA } else {
-      sample_base_counts <- row_gatk_coverage[,column_name]
-      alleles <- strsplit(as.character(sample_base_counts),split=" ")[[1]]
-      alleles_alt <- alleles[grep(alt,alleles)]
-      alt_dep <- gsub(paste0(alt,":"),"",alleles_alt)
-    }
-
-  return(alt_dep)
-
-}
-
-# Function to extract the total depth of coverage for the sample of interest from every row
-extract_tot_depth <- function(row_gatk_coverage,TCGA=FALSE){
-
-  if(TCGA){ # quite of a bad fix just for TCGA names
-    sample <- gsub("-",".",as.character(row_gatk_coverage$SampleNameShort))
-    depth_columns <- colnames(row_gatk_coverage)[grep("Depth_for_",colnames(row_gatk_coverage))]
-    sample_pmatch <- grep(sample,depth_columns)
-    column_name <- depth_columns[sample_pmatch]
-  }else{
-    sample <- as.character(row_gatk_coverage$SampleName)
-    column_name <- paste0(sample,"_base_counts")
-  }
-
-  alleles_tot_depth <- row_gatk_coverage[,column_name]
-
-  return(alleles_tot_depth)
-
-}
-
-
-# The GATK coverage file comes in a very specific annoying format. I know from the variants called in the initial deep sequenced RNA-Seq samples
-# what are the Alt and Ref allele for each one of the variants for which I computed depth and VAF. The alt and ref allele were not reported in the truth set
 
 parse_gatk_coverage <- function(path_to_gatk_coverage,
-                           truth_set,TCGA=FALSE){
+                                truth_set,TCGA=FALSE){
 
-  # Read in coverage data
-  cov <- read.delim(path_to_gatk_coverage)
-  cov$Locus <- as.character(cov$Locus)
-  # Create key column to combine cov with mutation information and get the alt and ref alleles from the initial set of variants
-  # since the allele were not reported in the paper (= truth set)
+# truthset should contain  
+  
+cov <- read.delim(path_to_gatk_coverage)
+cov$Locus <- as.character(cov$Locus)
 
-  cov <- merge(truth_set,cov,all.x=TRUE)
-  #cov$Location <- gsub(":","_",cov$Locus)fVARI
+# Reshape from wide to long the total depth column for every sample
+cov_long_tot_depth <- cov %>% tidyr::gather(base_tot_counts,tot_depth, starts_with("Depth_for_")) %>%
+  dplyr::select(Locus,base_tot_counts,tot_depth)
 
-  # Extract tot depth and alt depth
-  alt_allele_counts <- NULL
-  tot_depth_counts <- NULL
-  for(i in 1:nrow(cov)){
-    alt_allele_counts <- c(alt_allele_counts,extract_depth_allele(cov[i,],TCGA=TCGA))
-    tot_depth_counts <- c(tot_depth_counts,extract_tot_depth(cov[i,],TCGA=TCGA))
-  }
+# Reshape from wide to long the per allel base depth for every sample
+cov_long_alt_depth <- cov %>% gather(base_alt_counts,alleles, contains("base_counts")) %>%
+  select(Locus,base_alt_counts,alleles)
 
-  cov$alt_depth_GATK <- as.numeric(as.character(alt_allele_counts))
-  cov$tot_depth_GATK <- as.numeric(as.character(tot_depth_counts))
+# Unique names of the sample to extract information from column
+if(TCGA){
+  names_samples <- unique(gsub("-",".",truth_set$SampleNameShort))
+}else{
+  names_samples <- unique(gsub("-",".",truth_set$SampleName))
+}
 
-  base_counts_depth <- c(colnames(cov)[grep("Depth_for_",colnames(cov))],
-                         colnames(cov)[grep("_base_counts",colnames(cov))])
+create_match_names_tot <- data.frame(base_tot_counts = unique(cov_long_tot_depth$base_tot_counts))
 
-  # Remove a lot of the extra columns
-  cov <- cov[,!(colnames(cov)  %in% c(base_counts_depth,"Total_Depth","Average_Depth_sample"))]
-  cov$VAF_GATK <- cov$alt_depth_GATK/cov$tot_depth_GATK
+for(i in 1:nrow(create_match_names_tot)){
+  mat <- stringr::str_extract(create_match_names_tot$base_tot_counts[i], names_samples) # extract sample name from every column name
+  mat <- mat[!is.na(mat)]
+  if(length(mat) < 1) mat <- NA
+  create_match_names_tot$SampleName[i] <- mat
+}
 
-  return(cov)
+create_match_names_alt <- data.frame(base_alt_counts = unique(cov_long_alt_depth$base_alt_counts))
+for(i in 1:nrow(create_match_names_alt)){
+  mat <- stringr::str_extract(create_match_names_alt$base_alt_counts[i], names_samples)
+  mat <- mat[!is.na(mat)]
+  if(length(mat) < 1) mat <- NA
+  create_match_names_alt$SampleName[i] <- mat
+}
+
+# Match Samplename to alt and tot depth 
+cov_long_alt_depth1 <- cov_long_alt_depth %>% dplyr::left_join(create_match_names_alt) %>% select(- base_alt_counts)
+cov_long_tot_depth1 <- cov_long_tot_depth %>% dplyr::left_join(create_match_names_tot) %>% select(- base_tot_counts)
+
+cov_long <- cov_long_alt_depth1 %>% dplyr::full_join(cov_long_tot_depth1)
+
+# Trick for TCGA names
+if(TCGA){
+  cov_long$SampleName <- gsub("[.]","-",cov_long$SampleName)
+  cov_long <- cov_long %>% dplyr::rename(SampleNameShort = SampleName)
+}
+
+cov_long_infos <- truth_set %>% left_join(cov_long)
+
+cov_long_infos1 <- cov_long_infos %>% separate(alleles,into = c("A","C","G","T","N"),sep=" ",remove=FALSE)
+#head(cov_long_infos1[is.na(cov_long_infos1$A),c("SampleNameShort","Locus","A","C")])
+#cov_long_infos1[,c("SampleNameShort","Locus","A","C")]
+
+cov_long_infos1 <- cov_long_infos1 %>% dplyr::rename(tot_depth_GATK = tot_depth)
+cov_long_infos1$alt_depth_GATK <- NA
+for(i in 1:nrow(cov_long_infos1)){
+  allele_alt <- cov_long_infos1$alt_initial[i]
+  allele_alt_dep <- cov_long_infos1[i,allele_alt]
+  cov_long_infos1$alt_depth_GATK[i] <- as.numeric(as.character(gsub(paste0(allele,":"),"",allele_alt_dep)))
+}
+
+return(cov_long_infos1)
 
 }
+
+
+# Test with TCGA
+
+# # TCGA
+# path_to_gatk_coverage <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/TCGA_initial/TCGA_initial"
+# truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/08-TCGA/02-prepare_for_sens_analysis_data/mut_infos_standardised.csv"))
+# truth_set$LongSampleName <- as.character(names40M$LongSampleName)[match(truth_set$SampleName,names40M$SampleName)]
+# length(unique(truth_set$LongSampleName)) # 139
+# length(unique(truth_set$SampleName)) # 139
+# truth_set <- truth_set %>% dplyr::rename(SampleNameShort = SampleName,
+#                                          SampleName = LongSampleName,
+#                                          Feature=ensembl_transcript_id) %>%
+#   select(SampleName,SampleNameShort,Locus,chrom,pos,end,ref,alt_initial,NCBI,SYMBOL,variant_type,Feature,PresentInRNA,
+#          NormalRefReads,NormalVarReads,NormalVAF,TumorRefReads,TumorVarReads,TumorVAF,RNARefReads,RNAVarReads,RNAVAF,RNAVAF_myEst)
+# 
+# cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = TRUE)
+# 
+# # leucegene
+# truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/02-variant_loss_downsampling/02-variant_loss_downsampling_data","mut_for_paper_table.csv"))
+# truth_set <- truth_set %>% dplyr::rename(Feature = ensembl_transcript_id,
+#                                                 alt_initial = alt_initial_vardict) %>%
+#   separate(Locus, into=c("chrom","pos"),remove=FALSE,sep=":")
+# 
+# path_to_gatk_coverage1 <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/20M_100/20M_100"
+# cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage1,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = FALSE)
+
 
 
