@@ -1,4 +1,4 @@
 
 .Rproj.user
 README.Rmd
-./R/parse_gatk_coverage_old.R
+R/parse_gatk_coverage_old.R
