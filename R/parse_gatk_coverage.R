@@ -59,8 +59,11 @@ cov_long_infos1 <- cov_long_infos %>% separate(alleles,into = c("A","C","G","T",
 #cov_long_infos1[,c("SampleNameShort","Locus","A","C")]
 
 cov_long_infos1 <- cov_long_infos1 %>% dplyr::rename(tot_depth_GATK = tot_depth)
-cov_long_infos1$tot_depth <- as.character(as.numeric(cov_long_infos1$tot_depth))
 
+# Total depth
+cov_long_infos1$tot_depth_GATK <- as.character(as.numeric(cov_long_infos1$tot_depth))
+
+# Alternative depth
 cov_long_infos1$alt_depth_GATK <- NA
 for(i in 1:nrow(cov_long_infos1)){
   allele_alt <- cov_long_infos1$alt_initial[i]
