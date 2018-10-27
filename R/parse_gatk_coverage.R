@@ -83,28 +83,28 @@ return(cov_long_infos1)
 
 # Test with TCGA
 
-# # TCGA
-path_to_gatk_coverage <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/TCGA_initial/TCGA_initial"
-truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/08-TCGA/02-prepare_for_sens_analysis_data/mut_infos_standardised.csv"))
-truth_set$LongSampleName <- as.character(names40M$LongSampleName)[match(truth_set$SampleName,names40M$SampleName)]
-length(unique(truth_set$LongSampleName)) # 139
-length(unique(truth_set$SampleName)) # 139
-truth_set <- truth_set %>% dplyr::rename(SampleNameShort = SampleName,
-                                          SampleName = LongSampleName,
-                                          Feature=ensembl_transcript_id) %>%
-   select(SampleName,SampleNameShort,Locus,chrom,pos,end,ref,alt_initial,NCBI,SYMBOL,variant_type,Feature,PresentInRNA,
-          NormalRefReads,NormalVarReads,NormalVAF,TumorRefReads,TumorVarReads,TumorVAF,RNARefReads,RNAVarReads,RNAVAF,RNAVAF_myEst)
-
- cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = TRUE)
-
- # leucegene
- truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/02-variant_loss_downsampling/02-variant_loss_downsampling_data","mut_for_paper_table.csv"))
- truth_set <- truth_set %>% dplyr::rename(Feature = ensembl_transcript_id,
-                                                 alt_initial = alt_initial_vardict) %>%
-   separate(Locus, into=c("chrom","pos"),remove=FALSE,sep=":")
-
- path_to_gatk_coverage1 <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/20M_100/20M_100"
- cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage1,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = FALSE)
-
-
-
+# # # TCGA
+# path_to_gatk_coverage <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/TCGA_initial/TCGA_initial"
+# truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/08-TCGA/02-prepare_for_sens_analysis_data/mut_infos_standardised.csv"))
+# truth_set$LongSampleName <- as.character(names40M$LongSampleName)[match(truth_set$SampleName,names40M$SampleName)]
+# length(unique(truth_set$LongSampleName)) # 139
+# length(unique(truth_set$SampleName)) # 139
+# truth_set <- truth_set %>% dplyr::rename(SampleNameShort = SampleName,
+#                                           SampleName = LongSampleName,
+#                                           Feature=ensembl_transcript_id) %>%
+#    select(SampleName,SampleNameShort,Locus,chrom,pos,end,ref,alt_initial,NCBI,SYMBOL,variant_type,Feature,PresentInRNA,
+#           NormalRefReads,NormalVarReads,NormalVAF,TumorRefReads,TumorVarReads,TumorVAF,RNARefReads,RNAVarReads,RNAVAF,RNAVAF_myEst)
+#
+#  cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = TRUE)
+#
+#  # leucegene
+#  truth_set <- read_csv(file.path("/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/02-variant_loss_downsampling/02-variant_loss_downsampling_data","mut_for_paper_table.csv"))
+#  truth_set <- truth_set %>% dplyr::rename(Feature = ensembl_transcript_id,
+#                                                  alt_initial = alt_initial_vardict) %>%
+#    separate(Locus, into=c("chrom","pos"),remove=FALSE,sep=":")
+#
+#  path_to_gatk_coverage1 <- "/stornext/Genomics/data/AML_RNA/quaglieri.a/GEO_Leucegene_data/scripts/06-Streamline_downsampling/05-DepthOfCoverage/20M_100/20M_100"
+#  cov_gatk <- parse_gatk_coverage(path_to_gatk_coverage = path_to_gatk_coverage1,truth_set = subset(truth_set,variant_type %in% "SNV"),TCGA = FALSE)
+#
+#
+#
