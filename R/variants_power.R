@@ -291,6 +291,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                          path_to_gatk_coverage = as.character(path_to_gatk_coverage),
                                          TCGA=TCGA)
   print("after coverage")
+
   # VAF_GATK will be from GATK depth of Cov and VAF the estimate from each caller
   if(TCGA){
 
