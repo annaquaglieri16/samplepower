@@ -355,7 +355,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # 5. Determine power of recovery
   power <- sensitivity_by_thresholds(variants = coverage_downsampled,
-                                truth_set = truth_set)
+                                truth_set = truth_set[truth_set$variant_type %in% "SNV",])
 
   print("Sensitivity computed for SNVs.")
 
