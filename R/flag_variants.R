@@ -124,7 +124,7 @@ flag_variants <- function(variants,
 
 
   # Flag based on default filtering by callers and based on our thresholds
-  variants_flagged$Flag_defaults <- ifelse(variants_flagged$Quality_defaults == 0,"filtered by caller",as.character(variants_flagged$Flag))
+  variants_flagged$Flag_defaults <- ifelse(variants_flagged$Quality_defaults == 0,"filtered by quality thresholds",as.character(variants_flagged$Flag))
   variants_flagged$Flag_annot <- ifelse(variants_flagged$Quality_annot == 0,"filtered by quality thresholds",as.character(variants_flagged$Flag))
 
   # Exon edges

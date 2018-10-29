@@ -2,13 +2,13 @@
 match_indels <- function(truth_set,variants,use_transcript){
 
   # If an INDELS is reported in the truth set with a start != end then I will use this range to find an overlap?
-  if ("pos" %in% colnames(truth_set)){
+  if ( "pos" %in% colnames(truth_set) & "end" %in% colnames(truth_set) ) {
     start_var <- as.numeric(as.character(truth_set$pos))
-    end_var <- as.numeric(as.character(truth_set$pos))
+    end_var <- as.numeric(as.character(truth_set$end))
   } else {
-    if ( "pos" %in% colnames(truth_set) & "end" %in% colnames(truth_set) ) {
+    if ("pos" %in% colnames(truth_set)){
       start_var <- as.numeric(as.character(truth_set$pos))
-      end_var <- as.numeric(as.character(truth_set$end))
+      end_var <- as.numeric(as.character(truth_set$pos))
     } else {
       stop("truth_set needs to include either a 'pos' column or a 'pos' and 'end' column.")
     }
@@ -52,7 +52,7 @@ match_indels <- function(truth_set,variants,use_transcript){
   }
 
   # Create GRanges of truth set
-  df <- truth_set %>% dplyr::select(-chrom,-pos)
+  df <- truth_set %>% dplyr::select(-chrom,-pos) # locus is left to indicate the position in the truth set
   truth_set_GR <- GRanges(seqnames = truth_set$chrom,
                           IRanges(start = start_var,
                                   end = end_var),mcols=df)
@@ -98,7 +98,8 @@ match_indels <- function(truth_set,variants,use_transcript){
 
     } else{
 
-      df_indel <- cbind(data.frame(truth_indel),data.frame(mcols(callset_GR[subjectHits(over)])))
+      df_indel <- cbind(data.frame(truth_indel),data.frame(mcols(callset_GR[subjectHits(over)]))) # I bind the positionfrom the truth set with the mcols from the callset, Location from the variants set should preserve the position
+      # found by a caller
       colnames(df_indel) <- stringr::str_remove(colnames(df_indel),"mcols.")
 
     }
