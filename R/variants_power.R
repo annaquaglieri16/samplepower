@@ -86,12 +86,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("No set of true variants provided.")
   } else {
 
-    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","variant_type","SYMBOL","Feature","SampleName")
+    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
       if(check_columns > 0){
-        need_colmuns <- c("chrom","pos","Locus","alt_initial","ref","variant_type","SYMBOL","Feature","SampleName")
+        need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
         missing <- need_colmuns[!(need_colmuns %in% colnames(truth_set))]
         stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
       }
@@ -490,12 +490,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # Reorder columns
   if(!TCGA){
   indels_paper_recovery <- indels_paper_recovery %>%
-    dplyr::select(chrom,pos,ref,alt,alt_initial,Mutation,Location,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
+    dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Mutation,Location,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
                   type_indel,type_indel2,caller,down_label,key_SampleName,SampleName,everything())
   } else {
 
   indels_paper_recovery <- indels_paper_recovery %>%
-    dplyr::select(chrom,pos,ref,alt,alt_initial,Location,VAF,ref_depth,alt_depth,SYMBOL,
+    dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Location,VAF,ref_depth,alt_depth,SYMBOL,
                   caller,down_label,key_SampleName,SampleName,everything())
 
   }
@@ -533,13 +533,13 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
 
   indels_init_filtered_unique <- indels_init_filtered_unique %>%
-    mutate(DownMatch_defaults = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_defaults],TRUE,FALSE)) %>%
-    mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
+    dplyr::mutate(DownMatch_defaults = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_defaults],TRUE,FALSE)) %>%
+    dplyr::mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
 
   # same for annot strategy
   indels_init_filtered_unique <- indels_init_filtered_unique %>%
-    mutate(DownMatch_annot = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_annot],TRUE,FALSE)) %>%
-    mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
+    dplyr::mutate(DownMatch_annot = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_annot],TRUE,FALSE)) %>%
+    dplyr::mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
 
   # Sensitivity
   sens_defaults_indels <- sum(indels_init_filtered_unique$DownCalled_defaults)/sum(indels_init_filtered_unique$Keep_defaults)

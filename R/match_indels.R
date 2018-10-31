@@ -10,7 +10,7 @@ match_indels <- function(truth_set,variants,use_transcript){
       start_var <- as.numeric(as.character(truth_set$pos))
       end_var <- as.numeric(as.character(truth_set$pos))
     } else {
-      stop("truth_set needs to include either a 'pos' column or a 'pos' and 'end' column.")
+      stop("truth_set needs to include either a 'pos' column or a 'pos' and 'end' columns.")
     }
   }
 
