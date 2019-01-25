@@ -554,13 +554,16 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # summ all the variants called by a caller in the downsampled set that are not in the initial set
   # 1. only take those variants that matched a variant called in the initial set with default parameters
   # sum the keep_defaults from  in the downsampled dataset
+
+  # Using default filters
   var_passed_in_initial_defaults <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_defaults]
   fpn_defaults_indels <- sum(indels_caller_unique$Keep_defaults[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
   fp_defaults_indels <- fpn_defaults_indels/sum(indels_caller_unique$Keep_defaults)
 
+  # using filters which include external databases
   var_passed_in_initial_annot <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_annot]
   fpn_annot_indels <- sum(indels_caller_unique$Keep_annot[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_annot)])
-  fp_annot_indels <- fpn_annot/sum(indels_caller_unique$Keep_annot)
+  fp_annot_indels <- fpn_annot_indels/sum(indels_caller_unique$Keep_annot)
 
   fp_indels = c(fpn_defaults_indels,fp_defaults_indels,fpn_annot_indels,fp_annot_indels)
   names(fp_indels) <- c("Ndefaults","Pdefaults","Nannot","Pannot")
