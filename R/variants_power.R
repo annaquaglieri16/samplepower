@@ -90,11 +90,11 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
-      if(check_columns > 0){
-        need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
-        missing <- need_colmuns[!(need_colmuns %in% colnames(truth_set))]
-        stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
-      }
+    if(check_columns > 0){
+      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
+      missing <- need_colmuns[!(need_colmuns %in% colnames(truth_set))]
+      stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
+    }
   }
 
   if(is.na(caller)){
@@ -184,7 +184,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   names_samples <- gsub("_germline_final.txt","",basename(variant_files))
   list_variants <- lapply(variant_files,function(x){
     read.delim(x,fill=TRUE, stringsAsFactors = FALSE)}
-    )
+  )
 
   # Check variant number and samples
   len_variants <- sapply(list_variants,nrow)
@@ -205,7 +205,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   down_variants_sub <- lapply(1:length(list_variants),
                               function(index){
                                 extract_fields(list_variants[[index]],label=down_label,use_transcript = !TCGA)}
-                              )
+  )
   down_variants_sub <- do.call(rbind,down_variants_sub)
 
   # Only consider canonical chromosomes
@@ -220,7 +220,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   list_variants <- lapply(variant_files_initial,
                           function(x){
                             read.delim(x,fill=TRUE, stringsAsFactors = FALSE)}
-                          )
+  )
 
   # Check variant number and samples
   len_variants <- sapply(list_variants,nrow)
@@ -241,7 +241,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   variants_init <- lapply(1:length(list_variants),
                           function(index){
                             extract_fields(list_variants[[index]],label=down_label,use_transcript = !TCGA)}
-                          )
+  )
   variants_init <- do.call(rbind,variants_init)
 
   # Only consider canonical chromosomes
@@ -257,12 +257,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # This step will add flagged column and Keep columns to decide whether a variant is passed by a caller
   # Downsampled
   variants_down_filtered <- flag_variants(variants = down_variants_sub,
-                                    normal_variants = normal_variants,
-                                    flag_patterns = flag_patterns,
-                                    exon_ranges = exon_ranges,
-                                    homop_ranges = homop_ranges,
-                                    RNAedit_ranges = RNAedit_ranges,
-                                    repeats_ranges = repeats_ranges)
+                                          normal_variants = normal_variants,
+                                          flag_patterns = flag_patterns,
+                                          exon_ranges = exon_ranges,
+                                          homop_ranges = homop_ranges,
+                                          RNAedit_ranges = RNAedit_ranges,
+                                          repeats_ranges = repeats_ranges)
 
   print("Downsampled variant flagged.")
 
@@ -271,12 +271,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Initial
   variants_init_filtered <- flag_variants(variants = variants_init,
-                                    normal_variants = normal_variants,
-                                    flag_patterns = flag_patterns,
-                                    exon_ranges = exon_ranges,
-                                    homop_ranges = homop_ranges,
-                                    RNAedit_ranges = RNAedit_ranges,
-                                    repeats_ranges = repeats_ranges)
+                                          normal_variants = normal_variants,
+                                          flag_patterns = flag_patterns,
+                                          exon_ranges = exon_ranges,
+                                          homop_ranges = homop_ranges,
+                                          RNAedit_ranges = RNAedit_ranges,
+                                          repeats_ranges = repeats_ranges)
 
   variants_init_filtered <- subset(variants_init_filtered, SYMBOL %in% truth_set$SYMBOL)
 
@@ -288,8 +288,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   print("before coverage")
   coverage_downsampled <- parse_gatk_coverage(truth_set = truth_set[truth_set$variant_type %in% "SNV",],
-                                         path_to_gatk_coverage = as.character(path_to_gatk_coverage),
-                                         TCGA=TCGA)
+                                              path_to_gatk_coverage = as.character(path_to_gatk_coverage),
+                                              TCGA=TCGA)
   print("after coverage")
 
   # VAF_GATK will be from GATK depth of Cov and VAF the estimate from each caller
@@ -298,10 +298,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     #tab <- variants_down_filtered %>% group_by(key_SampleName) %>% count()
 
     variants_down_filtered <- unique(variants_down_filtered %>% select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,tot_depth ,VAF,ref_depth,key_SampleName,
-                                                                 alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
-                                                                 variant_type,Exon_edge,RepeatMasker,Homopolymers,
-                                                                 Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,germline_somatic,Flag_defaults,Flag_annot,
-                                                                 PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
+                                                                       alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
+                                                                       variant_type,Exon_edge,RepeatMasker,Homopolymers,
+                                                                       Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,germline_somatic,Flag_defaults,Flag_annot,
+                                                                       PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
     #tab <- variants_down_filtered1 %>% group_by(key_SampleName) %>% count()
 
     variants_init_filtered <- unique(variants_init_filtered %>% select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,tot_depth ,VAF,ref_depth,key_SampleName,
@@ -311,12 +311,12 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                                                        PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
 
     coverage_downsampled <- unique(merge(coverage_downsampled,
-                                          variants_down_filtered,all.x=TRUE))
+                                         variants_down_filtered,all.x=TRUE))
 
   }else{
 
     coverage_downsampled <- unique(merge(coverage_downsampled,
-                                       variants_down_filtered,all.x=TRUE))
+                                         variants_down_filtered,all.x=TRUE))
   }
 
   print("Added GATK total and alt depth.")
@@ -332,8 +332,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   coverage_downsampled <- coverage_downsampled %>%
     dplyr::mutate(Called_annot = ifelse(!is.na(Keep_annot) & Keep_annot,1,0),
-           Called_defaults = ifelse(!is.na(Keep_defaults) & Keep_defaults,1,0),
-           match_alt = ifelse(alt == alt_initial,1,0))
+                  Called_defaults = ifelse(!is.na(Keep_defaults) & Keep_defaults,1,0),
+                  match_alt = ifelse(alt == alt_initial,1,0)) %>%
+    dplyr::mutate(Flag_annot = case_when(match_alt == 0 ~ paste0(Flag_annot,";mismatch alt"),
+                                         TRUE ~ Flag_annot))
 
   # Alt is obtained from GATK both is the variant is called or not called so there will always an ALT
   coverage_downsampled <- coverage_downsampled %>%
@@ -345,9 +347,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   sampleNames <- as.character(unique(truth_set$SampleName))
 
   if(add_gene_counts){
-  coverage_downsampled_expr <- add_log_rpkm(variants = coverage_downsampled,
-                                            gene_expression = gene_expression,
-                                          sample_names = sampleNames)
+    coverage_downsampled_expr <- add_log_rpkm(variants = coverage_downsampled,
+                                              gene_expression = gene_expression,
+                                              sample_names = sampleNames)
   }else{
     coverage_downsampled_expr <- coverage_downsampled
   }
@@ -355,14 +357,13 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # 5. Determine power of recovery
   power <- sensitivity_by_thresholds(variants = coverage_downsampled,
-                                truth_set = truth_set[truth_set$variant_type %in% "SNV",])
+                                     truth_set = truth_set[truth_set$variant_type %in% "SNV",])
 
   print("Sensitivity computed for SNVs.")
 
   #############################################
   ## Sens and FP using initial set as truth set
   #############################################
-
 
   variants_init_filtered$key1_SampleName <- paste(variants_init_filtered$chrom,
                                                   variants_init_filtered$pos,
@@ -380,25 +381,62 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # The same variant can be annotated differently, in some cases they have or they don't have tdbSNP for instance.
   # This means that if I use the flag term I will have duplicated variants
   # What I am interested here is to see how much different library sizes affect the false positive rate at different levels of downsampling.
-  variants_init_filtered_unique <- unique(variants_init_filtered[,c("Location","caller","chrom","pos","ref","alt",
-                                                                    "key1_SampleName","down_label","Keep_defaults","Keep_annot")])
+  #variants_init_filtered_unique <- unique(variants_init_filtered[,c("Location","caller","chrom","pos","ref","alt", "key1_SampleName","down_label"#,"Keep_defaults","Keep_annot")])
+
+  #  variants_down_filtered_unique <- unique(variants_down_filtered[,c("Location","caller","chrom","pos","ref","alt",
+  #                                                                    "key1_SampleName","Keep_defaults","Keep_annot")])
 
 
-  variants_down_filtered_unique <- unique(variants_down_filtered[,c("Location","caller","chrom","pos","ref","alt",
-                                                                    "key1_SampleName","Keep_defaults","Keep_annot")])
+  # Create unique rows for each variant by pasting the flags
+  variants_init_filtered_unique <- variants_init_filtered %>%
+    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+              Flag_defaults = paste(Flag_defaults,collapse = ";"),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
+              ref_depth = unique(ref_depth),
+              alt_depth = unique(alt_depth),
+              tot_depth = unique(tot_depth),
+              VAF = unique(VAF)) %>%
+    mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
+           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
+
+  variants_down_filtered_unique <- variants_down_filtered %>%
+    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+              Flag_defaults = paste(Flag_defaults,collapse = ";"),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
+              ref_depth = unique(ref_depth),
+              alt_depth = unique(alt_depth),
+              tot_depth = unique(tot_depth),
+              VAF = unique(VAF)) %>%
+    dplyr::rename(alt_depth_down = alt_depth,
+                  VAF_down = VAF,
+                  Flag_annot_down = Flag_annot,
+                  Flag_defaults_down = Flag_defaults,
+                  Keep_annot_down = Keep_annot,
+                  Keep_defaults_down = Keep_defaults) %>%
+    mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
+           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
+
 
   # Match if a variant present in the initial run was found in the downsampled dataset.
   # Is there a match with the variants called in the downsampled dataset?
   # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
 
+  variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults_down]
+
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
-    mutate(DownMatch_defaults = ifelse(key1_SampleName %in% variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults],TRUE,FALSE)) %>%
+    mutate(DownMatch_defaults = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
     mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
 
 
   # Same for annot strategy
+  variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_annot_down]
+
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
-    mutate(DownMatch_annot = ifelse(key1_SampleName %in% variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_annot],TRUE,FALSE)) %>%
+    mutate(DownMatch_annot = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
     mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
 
   ######################
@@ -419,19 +457,29 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # Sum all the variants called by a caller in the downsampled set that are not in the initial set
   # 1. only take those variants that matched a variant called in the initial set with default parameters
   # Sum the keep_defaults from the downsampled dataset
+  variant_called_init <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_defaults]
 
-  var_passed_in_initial_defaults <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_defaults]
+  # Number of variants called in the downsmapled call set not present in the initial call set
+  fpn_defaults <- sum(variants_down_filtered_unique$Keep_defaults_down[!(variants_down_filtered_unique$key1_SampleName %in% variant_called_init)])
+  fp_defaults <- fpn_defaults/sum(variants_down_filtered_unique$Keep_defaults_down)
 
-  # Number of variantscalled in the downsmapled call set nott present in the initial call set
-  fpn_defaults <- sum(variants_down_filtered_unique$Keep_defaults[!(variants_down_filtered_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
-  fp_defaults <- fpn_defaults/sum(variants_down_filtered_unique$Keep_defaults)
+  # annot strategy
+  variant_called_init <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_annot]
 
-  var_passed_in_initial_annot <- variants_init_filtered_unique$key1_SampleName[variants_init_filtered_unique$Keep_annot]
-  fpn_annot <- sum(variants_down_filtered_unique$Keep_annot[!(variants_down_filtered_unique$key1_SampleName %in% var_passed_in_initial_annot)])
-  fp_annot <- fpn_annot/sum(variants_down_filtered_unique$Keep_annot)
+  fpn_annot <- sum(variants_down_filtered_unique$Keep_annot_down[!(variants_down_filtered_unique$key1_SampleName %in% variant_called_init)])
+  fp_annot <- fpn_annot/sum(variants_down_filtered_unique$Keep_annot_down)
 
   fp = c(fpn_defaults,fp_defaults,fpn_annot,fp_annot)
   names(fp) <- c("Ndefaults","Pdefaults","Nannot","Pannot")
+
+  # Merge variants found in the initial dataset with the features (VAF/alt and tot depth) from the ones in the downsampled set
+  # I will use this dataset to study the features of the variants lost in downsampled runs
+
+  variants_init_filtered_unique <- variants_init_filtered_unique %>%
+    dplyr::left_join(variants_down_filtered_unique[,c("key1_SampleName","chrom","pos","SampleName",
+                                               "alt","SYMBOL","caller","down_label",
+                                               "Flag_annot_down","Flag_annot_down",
+                                               "Keep_annot_down","Keep_defaults_down")])
 
   power_init <- list(sens = sens,
                      fp = fp,
@@ -443,11 +491,11 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # Add flag in the variant set: 1 if FP and 0 otherwise
   ######################################################
 
-  # variants_down_filtered differently from variants_down_filtered_unique containes multiple rows for the same variant if annotated on different transcripts.
+  # I will use the dataset below to study the features of the false positives in the downsampled runs
   variants_down_filtered$FP_defaults <- ifelse(!(variants_down_filtered$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
-                                                 variants_down_filtered$Keep_defaults, 1, 0)
+                                                 variants_down_filtered$Keep_defaults_down, 1, 0)
   variants_down_filtered$FP_annot <- ifelse(!(variants_down_filtered$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
-                                              variants_down_filtered$Keep_annot, 1, 0)
+                                              variants_down_filtered$Keep_annot_down, 1, 0)
 
   #############################################################
   # Add gene expression for all variants called by this caller
@@ -458,8 +506,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   if ( add_gene_counts ) {
     variants_down_filtered$GeneID <- ncbi$GeneID[match(variants_down_filtered$SYMBOL,ncbi$SYMBOL)]
     variants_down_filtered_expr <- add_log_rpkm(variants = variants_down_filtered,
-                                              gene_expression = gene_expression,
-                                              sample_names = sampleNames)
+                                                gene_expression = gene_expression,
+                                                sample_names = sampleNames)
   } else {
     variants_down_filtered_expr <- variants_down_filtered
   }
@@ -489,14 +537,14 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Reorder columns
   if(!TCGA){
-  indels_paper_recovery <- indels_paper_recovery %>%
-    dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Mutation,Location,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
-                  type_indel,type_indel2,caller,down_label,key_SampleName,SampleName,everything())
+    indels_paper_recovery <- indels_paper_recovery %>%
+      dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Mutation,Location,indel_features,VAF,VAF_paper,ref_depth,alt_depth,SYMBOL,
+                    type_indel,type_indel2,caller,down_label,key_SampleName,SampleName,everything())
   } else {
 
-  indels_paper_recovery <- indels_paper_recovery %>%
-    dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Location,VAF,ref_depth,alt_depth,SYMBOL,
-                  caller,down_label,key_SampleName,SampleName,everything())
+    indels_paper_recovery <- indels_paper_recovery %>%
+      dplyr::select(chrom,pos,ref,alt,ref_initial,alt_initial,Location,VAF,ref_depth,alt_depth,SYMBOL,
+                    caller,down_label,key_SampleName,SampleName,everything())
 
   }
 
@@ -522,23 +570,57 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                          indels_caller$SYMBOL,sep=";")
 
   # I use the dbSNP, Exac databases to annotate the variants, set the flags. The same variant can be annotated differently, in some cases they have or they don't have tdbSNP for instance. This means that if I use the flag term I will have duplicated variants
-  indels_init_filtered_unique <- unique(indels_init_filtered[,c("Location","caller","chrom","pos","ref","alt",
-                                                                "key1_SampleName","down_label","Keep_defaults","Keep_annot")])
+#  indels_init_filtered_unique <- unique(indels_init_filtered[,c("Location","caller","chrom","pos","ref","alt",                                                                "key1_SampleName","down_label"#,"Keep_defaults","Keep_annot")])
 
-  indels_caller_unique <- unique(indels_caller[,c("Location","caller","chrom","pos","ref","alt",
-                                                  "key1_SampleName","Keep_defaults","Keep_annot")])
+#  indels_caller_unique <- unique(indels_caller[,c("Location","caller","chrom","pos","ref","alt",
+ #                                                 "key1_SampleName","Keep_defaults","Keep_annot")])
+
+
+
+  # Create unique rows for each variant by pasting the flags
+  indels_init_filtered_unique <- indels_init_filtered %>%
+    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+              Flag_defaults = paste(Flag_defaults,collapse = ";"),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
+              ref_depth = unique(ref_depth),
+              alt_depth = unique(alt_depth),
+              tot_depth = unique(tot_depth),
+              VAF = unique(VAF)) %>%
+    mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
+           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
+
+  indels_caller_unique <- indels_caller %>%
+    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+              Flag_defaults = paste(Flag_defaults,collapse = ";"),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
+              ref_depth = unique(ref_depth),
+              alt_depth = unique(alt_depth),
+              tot_depth = unique(tot_depth),
+              VAF = unique(VAF)) %>%
+    dplyr::rename(alt_depth_down = alt_depth,
+                  VAF_down = VAF,
+                  Flag_annot_down = Flag_annot,
+                  Flag_defaults_down = Flag_defaults,
+                  Keep_annot_down = Keep_annot,
+                  Keep_defaults_down = Keep_defaults) %>%
+    mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
+           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
 
   # Create vector
   # is there a match with the variants called in the downsampled dataset?
   # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
 
   indels_init_filtered_unique <- indels_init_filtered_unique %>%
-    dplyr::mutate(DownMatch_defaults = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_defaults],TRUE,FALSE)) %>%
+    dplyr::mutate(DownMatch_defaults = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_defaults_down],TRUE,FALSE)) %>%
     dplyr::mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
 
   # same for annot strategy
   indels_init_filtered_unique <- indels_init_filtered_unique %>%
-    dplyr::mutate(DownMatch_annot = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_annot],TRUE,FALSE)) %>%
+    dplyr::mutate(DownMatch_annot = ifelse(key1_SampleName %in% indels_caller_unique$key1_SampleName[indels_caller_unique$Keep_annot_down],TRUE,FALSE)) %>%
     dplyr::mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
 
   # Sensitivity
@@ -557,16 +639,23 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Using default filters
   var_passed_in_initial_defaults <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_defaults]
-  fpn_defaults_indels <- sum(indels_caller_unique$Keep_defaults[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
+  fpn_defaults_indels <- sum(indels_caller_unique$Keep_defaults_down[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
   fp_defaults_indels <- fpn_defaults_indels/sum(indels_caller_unique$Keep_defaults)
 
   # using filters which include external databases
   var_passed_in_initial_annot <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_annot]
-  fpn_annot_indels <- sum(indels_caller_unique$Keep_annot[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_annot)])
+  fpn_annot_indels <- sum(indels_caller_unique$Keep_annot_down[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_annot)])
   fp_annot_indels <- fpn_annot_indels/sum(indels_caller_unique$Keep_annot)
 
   fp_indels = c(fpn_defaults_indels,fp_defaults_indels,fpn_annot_indels,fp_annot_indels)
   names(fp_indels) <- c("Ndefaults","Pdefaults","Nannot","Pannot")
+
+ # Merge initial and downsamples runs
+  indels_init_filtered_unique <- indels_init_filtered_unique %>%
+    dplyr::left_join(indels_caller_unique[,c("key1_SampleName","chrom","pos","SampleName",
+                                                      "alt","SYMBOL","caller","down_label",
+                                                      "Flag_annot_down","Flag_annot_down",
+                                                      "Keep_annot_down","Keep_defaults_down")])
 
   power_init_indels <- list(sens = sens_indels,
                             fp = fp_indels,
