@@ -394,10 +394,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = unique(ref_depth),
-              alt_depth = unique(alt_depth),
-              tot_depth = unique(tot_depth),
-              VAF = unique(VAF)) %>%
+              ref_depth = round(mean(ref_depth)),
+              alt_depth = round(mean(alt_depth)),
+              tot_depth = round(mean(tot_depth)),
+              VAF = round(mean(VAF))) %>%
     mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
            Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
 
@@ -407,10 +407,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = unique(ref_depth),
-              alt_depth = unique(alt_depth),
-              tot_depth = unique(tot_depth),
-              VAF = unique(VAF)) %>%
+              ref_depth = round(mean(ref_depth)),
+              alt_depth = round(mean(alt_depth)),
+              tot_depth = round(mean(tot_depth)),
+              VAF = round(mean(VAF))) %>%
     dplyr::rename(alt_depth_down = alt_depth,
                   VAF_down = VAF,
                   Flag_annot_down = Flag_annot,
@@ -420,6 +420,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
            Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
 
+  print(head(variants_down_filtered_unique))
+  print(head(variants_init_filtered_unique))
 
   # Match if a variant present in the initial run was found in the downsampled dataset.
   # Is there a match with the variants called in the downsampled dataset?
