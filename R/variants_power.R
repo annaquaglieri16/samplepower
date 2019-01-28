@@ -394,10 +394,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = round(mean(ref_depth)),
-              alt_depth = round(mean(alt_depth)),
-              tot_depth = round(mean(tot_depth)),
-              VAF = round(mean(VAF))) %>%
+              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
+              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
+              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
+              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
     mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
            Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
 
@@ -407,10 +407,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = round(mean(ref_depth)),
-              alt_depth = round(mean(alt_depth)),
-              tot_depth = round(mean(tot_depth)),
-              VAF = round(mean(VAF))) %>%
+              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
+              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
+              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
+              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
     dplyr::rename(alt_depth_down = alt_depth,
                   VAF_down = VAF,
                   Flag_annot_down = Flag_annot,
@@ -584,10 +584,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = round(mean(ref_depth)),
-              alt_depth = round(mean(alt_depth)),
-              tot_depth = round(mean(tot_depth)),
-              VAF = round(mean(VAF))) %>%
+              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
+              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
+              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
+              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
     mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
            Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
 
@@ -597,9 +597,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
               Keep_defaults = max(Keep_defaults),
-              ref_depth = round(mean(ref_depth)),
-              alt_depth = round(mean(alt_depth)),
-              tot_depth = round(mean(tot_depth)),
+              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
+              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
+              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
               VAF = round(mean(VAF))) %>%
     dplyr::rename(alt_depth_down = alt_depth,
                   VAF_down = VAF,
