@@ -420,9 +420,6 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
            Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
 
-  print(head(variants_down_filtered_unique))
-  print(head(variants_init_filtered_unique))
-
   # Match if a variant present in the initial run was found in the downsampled dataset.
   # Is there a match with the variants called in the downsampled dataset?
   # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
@@ -479,8 +476,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
     dplyr::left_join(variants_down_filtered_unique[,c("key1_SampleName","chrom","pos","SampleName",
-                                               "alt","SYMBOL","caller","down_label",
-                                               "Flag_annot_down","Flag_annot_down",
+                                               "VAF_down","alt_depth_down",
+                                               "SYMBOL","caller","down_label",
+                                               "Flag_annot_down","Flag_defaults_down",
                                                "Keep_annot_down","Keep_defaults_down")])
 
   power_init <- list(sens = sens,
@@ -655,9 +653,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
  # Merge initial and downsamples runs
   indels_init_filtered_unique <- indels_init_filtered_unique %>%
     dplyr::left_join(indels_caller_unique[,c("key1_SampleName","chrom","pos","SampleName",
-                                                      "alt","SYMBOL","caller","down_label",
-                                                      "Flag_annot_down","Flag_annot_down",
-                                                      "Keep_annot_down","Keep_defaults_down")])
+                                               "VAF_down","alt_depth_down",
+                                               "SYMBOL","caller","down_label",
+                                               "Flag_annot_down","Flag_defaults_down",
+                                               "Keep_annot_down","Keep_defaults_down")])
 
   power_init_indels <- list(sens = sens_indels,
                             fp = fp_indels,
