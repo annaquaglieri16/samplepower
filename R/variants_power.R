@@ -392,8 +392,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
     dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = unique(Keep_annot),
-              Keep_defaults = unique(Keep_defaults),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
               qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
@@ -408,8 +408,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
     dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = unique(Keep_annot),
-              Keep_defaults = unique(Keep_defaults),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
               qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
@@ -591,8 +591,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
     dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = unique(Keep_annot),
-              Keep_defaults = unique(Keep_defaults),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
               qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
@@ -607,8 +607,8 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
     dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = unique(Keep_annot),
-              Keep_defaults = unique(Keep_defaults),
+              Keep_annot = max(Keep_annot),
+              Keep_defaults = max(Keep_defaults),
               qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
