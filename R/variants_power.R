@@ -389,36 +389,43 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Create unique rows for each variant by pasting the flags
   variants_init_filtered_unique <- variants_init_filtered %>%
-    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
-    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
+              Keep_annot = unique(Keep_annot),
+              Keep_defaults = unique(Keep_defaults),
+              qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
               tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
               VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
-    mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
-           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
+    dplyr::mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
+           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE),
+           Flag_defaults = sapply(strsplit(Flag_defaults,split=";"),function(x) paste(unique(x),collapse=";")),
+           Flag_annot = sapply(strsplit(Flag_annot,split=";"),function(x) paste(unique(x),collapse=";")))
 
   variants_down_filtered_unique <- variants_down_filtered %>%
-    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
-    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
+              Keep_annot = unique(Keep_annot),
+              Keep_defaults = unique(Keep_defaults),
+              qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
               tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
               VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
     dplyr::rename(alt_depth_down = alt_depth,
                   VAF_down = VAF,
+                  qual_down = qual,
                   Flag_annot_down = Flag_annot,
                   Flag_defaults_down = Flag_defaults,
                   Keep_annot_down = Keep_annot,
                   Keep_defaults_down = Keep_defaults) %>%
-    mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
-           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
+    dplyr::mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
+           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE),
+           Flag_defaults_down = sapply(strsplit(Flag_defaults_down,split=";"),function(x) paste(unique(x),collapse=";")),
+           Flag_annot_down = sapply(strsplit(Flag_annot_down,split=";"),function(x) paste(unique(x),collapse=";")))
 
   # Match if a variant present in the initial run was found in the downsampled dataset.
   # Is there a match with the variants called in the downsampled dataset?
@@ -427,16 +434,16 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults_down]
 
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
-    mutate(DownMatch_defaults = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
-    mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
+    dplyr::mutate(DownMatch_defaults = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
+    dplyr::mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
 
 
   # Same for annot strategy
   variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_annot_down]
 
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
-    mutate(DownMatch_annot = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
-    mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
+    dplyr::mutate(DownMatch_annot = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
+    dplyr::mutate(DownCalled_annot = ifelse(DownMatch_annot & Keep_annot,1,0))
 
   ######################
   # Compute Sensitivity
@@ -479,7 +486,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                                "VAF_down","alt_depth_down",
                                                "SYMBOL","caller","down_label",
                                                "Flag_annot_down","Flag_defaults_down",
-                                               "Keep_annot_down","Keep_defaults_down")])
+                                               "Keep_annot_down","Keep_defaults_down")]) %>%
+    dplyr::mutate(Flag_annot_down = ifelse(is.na(Flag_annot_down),"Not called",Flag_annot_down),
+                  Flag_defaults_down = ifelse(is.na(Flag_defaults_down),"Not called",Flag_defaults_down))
 
   power_init <- list(sens = sens,
                      fp = fp,
@@ -579,36 +588,43 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   # Create unique rows for each variant by pasting the flags
   indels_init_filtered_unique <- indels_init_filtered %>%
-    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
-    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
+              Keep_annot = unique(Keep_annot),
+              Keep_defaults = unique(Keep_defaults),
+              qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
               tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
               VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
-    mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
-           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE))
+    dplyr::mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
+           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE),
+           Flag_defaults = sapply(strsplit(Flag_defaults,split=";"),function(x) paste(unique(x),collapse=";")),
+           Flag_annot = sapply(strsplit(Flag_annot,split=";"),function(x) paste(unique(x),collapse=";")))
 
   indels_caller_unique <- indels_caller %>%
-    group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
-    summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
+    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
+              Keep_annot = unique(Keep_annot),
+              Keep_defaults = unique(Keep_defaults),
+              qual = round(mean(qual,na.rm=TRUE),3),
               ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
               alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
               tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
-              VAF = round(mean(VAF))) %>%
+              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
     dplyr::rename(alt_depth_down = alt_depth,
                   VAF_down = VAF,
+                  qual_down = qual,
                   Flag_annot_down = Flag_annot,
                   Flag_defaults_down = Flag_defaults,
                   Keep_annot_down = Keep_annot,
                   Keep_defaults_down = Keep_defaults) %>%
-    mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
-           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE))
+    dplyr::mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
+           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE),
+           Flag_defaults_down = sapply(strsplit(Flag_defaults_down,split=";"),function(x) paste(unique(x),collapse=";")),
+           Flag_annot_down = sapply(strsplit(Flag_annot_down,split=";"),function(x) paste(unique(x),collapse=";")))
 
   # Create vector
   # is there a match with the variants called in the downsampled dataset?
@@ -656,7 +672,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                                                "VAF_down","alt_depth_down",
                                                "SYMBOL","caller","down_label",
                                                "Flag_annot_down","Flag_defaults_down",
-                                               "Keep_annot_down","Keep_defaults_down")])
+                                               "Keep_annot_down","Keep_defaults_down")]) %>%
+    dplyr::mutate(Flag_annot_down = ifelse(is.na(Flag_annot_down),"Not called",Flag_annot_down),
+                  Flag_defaults_down = ifelse(is.na(Flag_defaults_down),"Not called",Flag_defaults_down))
 
   power_init_indels <- list(sens = sens_indels,
                             fp = fp_indels,
