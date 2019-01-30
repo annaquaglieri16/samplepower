@@ -500,15 +500,6 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
 
   print("False Positive rate using the initial set as truth set computed for SNVs.")
 
-  ######################################################
-  # Add flag in the variant set: 1 if FP and 0 otherwise
-  ######################################################
-
-  # I will use the dataset below to study the features of the false positives in the downsampled runs
-  variants_down_filtered$FP_defaults <- ifelse(!(variants_down_filtered$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
-                                                 variants_down_filtered$Keep_defaults, 1, 0)
-  variants_down_filtered$FP_annot <- ifelse(!(variants_down_filtered$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
-                                              variants_down_filtered$Keep_annot, 1, 0)
 
   #############################################################
   # Add gene expression for all variants called by this caller
@@ -685,6 +676,17 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
                             indels_init_filtered_unique = indels_init_filtered_unique)
 
   print("FP rate using the initial set as truth set computed for INDELs.")
+
+  ######################################################
+  # Add flag in the variant set: 1 if FP and 0 otherwise
+  ######################################################
+
+  # I will use the dataset below to study the features of the false positives in the downsampled runs
+  variants_down_filtered_expr$FP_defaults <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
+                                                      variants_down_filtered_expr$Keep_defaults, 1, 0)
+  variants_down_filtered_expr$FP_annot <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
+                                                   variants_down_filtered_expr$Keep_annot, 1, 0)
+
 
   print("Analysis completed")
 
