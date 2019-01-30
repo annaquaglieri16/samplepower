@@ -86,11 +86,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("No set of true variants provided.")
   } else {
 
-    if(!TCGA){
-      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
-    }else{
-      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","SampleName")
-    }
+    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
