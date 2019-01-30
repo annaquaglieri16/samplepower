@@ -390,6 +390,7 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   # Create unique rows for each variant by pasting the flags
   variants_init_filtered_unique <- variants_init_filtered %>%
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
+    dplyr::filter(variant_type %in% "SNV") %>%
     dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
               Flag_defaults = paste(Flag_defaults,collapse = ";"),
               Keep_annot = max(Keep_annot),
@@ -403,6 +404,10 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
            Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE),
            Flag_defaults = sapply(strsplit(Flag_defaults,split=";"),function(x) paste(unique(x),collapse=";")),
            Flag_annot = sapply(strsplit(Flag_annot,split=";"),function(x) paste(unique(x),collapse=";")))
+
+
+  variants_down_filtered <- variants_down_filtered %>%
+    dplyr::filter(variant_type %in% "SNV")
 
   variants_down_filtered_unique <- variants_down_filtered %>%
     dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label) %>%
