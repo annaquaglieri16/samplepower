@@ -86,12 +86,15 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("No set of true variants provided.")
   } else {
 
-    need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
+    if(!TCGA){
+      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
+    }else{
+      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","SampleName")
+    }
 
     check_columns <- sum(!(need_colmuns %in% colnames(truth_set)))
 
     if(check_columns > 0){
-      need_colmuns <- c("chrom","pos","Locus","alt_initial","ref_initial","variant_type","SYMBOL","Feature","SampleName")
       missing <- need_colmuns[!(need_colmuns %in% colnames(truth_set))]
       stop(paste0("Check requirements for column names of truth_set. The following columns are missing: ",missing))
     }
