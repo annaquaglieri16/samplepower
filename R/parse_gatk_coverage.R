@@ -1,4 +1,8 @@
-
+#' Parse and coverage and VAF from every location in the truth to the downsampled variants provided
+#' @param truth_set external truth set
+#' @param path_to_gatk_coverage path to file where the GATK `DepthOfCoverage` output is saved
+#' @param TCGA logical. If TRUE variants will be macthed with truth sets excluding transcript information
+#'
 
 parse_gatk_coverage <- function(path_to_gatk_coverage,
                                 truth_set,TCGA=FALSE){
