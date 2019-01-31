@@ -4,6 +4,7 @@ Title: Compute sensitivity and false positive rates for a variant call set with 
 Version: 0.1.0
 Depends: 
   R (>= 3.5),
+  BiocGenerics,
   IRanges (>= 2.12.0),
   GenomicRanges (>= 1.28.4)
 Author: Anna Quaglieri
@@ -13,9 +14,9 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
-  S4Vectors,
+  S4Vectors (>= 0.17.41),
   dplyr,
   stringr,
   edgeR,
   data.table
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
