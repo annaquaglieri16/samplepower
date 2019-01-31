@@ -1,4 +1,12 @@
-
+#' Flag and annotate variants using external databases and panel of normals information
+#' @param variants dataframe containing all the variants in the cohort. This is created within the `variants_power()` function
+#' @param normal_variants link to panel of normal file parsed with `samplepower::parse_pon`
+#' @param exon_ranges GRanges object with exon boundaries relative to the reference genome used
+#' @param homop_ranges GRanges object with homopolymers regions of more than 5bp relative to the reference genome used
+#' @param RNAedit_ranges GRanges object with RNA editing sites relative to the reference genome used
+#' @param repeats_ranges GRanges object with repetitive regions of the reference genome used
+#' @param flag_patterns dataframe containing the flags to assign to variants. THIS NEEDS TO BE SET AS INTERNAL TO THE PACKAGE
+#'
 
 #######################################
 ## Add flag and Keep for every variant
@@ -11,13 +19,6 @@ flag_variants <- function(variants,
                       homop_ranges,
                       RNAedit_ranges,
                       repeats_ranges){
-
-
-  # Add flags based on a filtering pattern that I created
-
-  # VARIANTS FOUND IN NORMALS
-  # If Variants > 2 Normals (= common in normals) OR Variants < 2 normals but with VAF > 3% then define it as found in normals
-  # The match in the normals should be based on chrom pos ref and alt. This coulde be biased for INDELs.
 
   variants <- variants %>% tidyr::unite(Location, alt , col = "Location_alt", sep="_",remove = FALSE)
 

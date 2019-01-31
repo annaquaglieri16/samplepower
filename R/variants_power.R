@@ -1,4 +1,4 @@
-#' Parse panel of normal variants to standardise output across callers
+#' Compute sensitivity and specificity for the a set of variants with respect to some truth sets
 #' @param variant_files character vector containing the paths to all the tab delimited files of variants from the downsampled run. See details.
 #' @param variant_files_initial character vector containing the paths to all the tab delimited files of variants from the initial run with deeply sequenced RNA-Seq samples. See details.
 #' @param down_label character. Any label to be assigned to the current run
@@ -17,7 +17,6 @@
 #'
 #' @details
 #' The files whose links are recorded in `variant_files_initial` and `variant_files` are the ouput files obtained with the `call_variants.R` function from the functions in https://github.com/annaquaglieri16/RNA-seq-variant-calling#panel-of-normals-pon. The VCF output from every callers are standardised to make the results easily comparable across callers.
-
 
 
 variants_power <- function(variant_files,

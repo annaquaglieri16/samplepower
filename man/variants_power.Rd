@@ -2,7 +2,7 @@
 % Please edit documentation in R/variants_power.R
 \name{variants_power}
 \alias{variants_power}
-\title{Parse panel of normal variants to standardise output across callers}
+\title{Compute sensitivity and specificity for the a set of variants with respect to some truth sets}
 \usage{
 variants_power(variant_files, variant_files_initial, down_label = NA,
   truth_set = NA, caller, gene_expression = NA, normal_variants,
@@ -41,7 +41,7 @@ variants_power(variant_files, variant_files_initial, down_label = NA,
 \item{TCGA}{logical. If TRUE variants will be macthed with truth sets excluding transcript information}
 }
 \description{
-Parse panel of normal variants to standardise output across callers
+Compute sensitivity and specificity for the a set of variants with respect to some truth sets
 }
 \details{
 The files whose links are recorded in `variant_files_initial` and `variant_files` are the ouput files obtained with the `call_variants.R` function from the functions in https://github.com/annaquaglieri16/RNA-seq-variant-calling#panel-of-normals-pon. The VCF output from every callers are standardised to make the results easily comparable across callers.
