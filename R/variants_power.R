@@ -1,51 +1,27 @@
-# The Variants called from the different callers that are used here would have been annotated with VEP and parsed with my functions so that I have control over the columns used for filtering
-# What are the columns from the truth set that I use?
-# What are the columns from the the variant called that I use?
-
-# Columns from the call set that I use
-# (Inside fieldsExtract)
-# Existing_variation <- ifelse(Existing_variation == "",NA,Existing_variation)
-# ExAC_AF <- as.numeric(as.character(ExAC_AF))
-# EUR_AF <- as.numeric(as.character(EUR_AF))
-# SYMBOL <- ifelse(SYMBOL == "",NA,SYMBOL)
-# SampleName <- gsub("_","",SampleName)
-# key_SampleName
-# chrom
-# pos
-# Feature
-# ADJVAF_ADJ_indels created by my parsing function
-
-# Inside flag var
-# 1. Location (chr_position)
-# alt (alternative allele)
-# 'nsam' is a column from normal_variants specifying how many nomral samples share that variant
-# 'minVAF' is a column from normal_variants specifying the minimum VAF reported in one of the variants found in normals
-# 'filter' column from my parsing
-# 'qual', 'alt_depth', 'tot_depth', 'VAF' column from my parsing
-# the file flag_patterns has specific columns used in the function
-
-# Fields shared between truth and call sets
-# 1.gene name always SYMBOL in both truth and called set
-# 2. SampleName always SampleName in both truth and called set
-# 3. variant_type column for SNV/INDEL in both truth and called set
-# 4. chrom always chrom
-# 5. pos always pos
-# 6. alt and ref columns to parse the coverage file
+#' Parse panel of normal variants to standardise output across callers
+#' @param variant_files character vector containing the paths to all the tab delimited files of variants from the downsampled run. See details.
+#' @param variant_files_initial character vector containing the paths to all the tab delimited files of variants from the initial run with deeply sequenced RNA-Seq samples. See details.
+#' @param down_label character. Any label to be assigned to the current run
+#' @param truth_set external truth set
+#' @param caller one of `varscan`, `mutect` or `vardict`
+#' @param gene_expression if available, `rds` objects with raw gene expression data where rows are genes and columns are samples
+#' @param normal_variants link to panel of normal file parsed with `samplepower::parse_pon`
+#' @param exon_ranges GRanges object with exon boundaries relative to the reference genome used
+#' @param homop_ranges GRanges object with homopolymers regions of more than 5bp relative to the reference genome used
+#' @param RNAedit_ranges GRanges object with RNA editing sites relative to the reference genome used
+#' @param repeats_ranges GRanges object with repetitive regions of the reference genome used
+#' @param ncbi NCBI annotation dataframe including at least the columns `GeneID` and `Symbol`
+#' @param flag_patterns dataframe containing the flags to assign to variants. THIS NEEDS TO BE SET AS INTERNAL TO THE PACKAGE
+#' @param path_to_gatk_coverage path to file where the GATK `DepthOfCoverage` output is saved
+#' @param TCGA logical. If TRUE variants will be macthed with truth sets excluding transcript information
+#'
+#' @details
+#' The files whose links are recorded in `variant_files_initial` and `variant_files` are the ouput files obtained with the `call_variants.R` function from the functions in https://github.com/annaquaglieri16/RNA-seq-variant-calling#panel-of-normals-pon. The VCF output from every callers are standardised to make the results easily comparable across callers.
 
 
-# Fields from truth set needed to be that column name
-# Location: chr:position (same as ouput from GATK coverage)
-# alt_initial: alt allele of initial dataset. Needs to be distinguished form the alt in the call set
-# ref : reference allele
-# SampleName : SRX name
-# Feature : ensemble_transcript_id
-# variant_type: SNV/INDEL
-# chrom
-# pos
-# SYMBOL: gene name in SYMBOL
 
-variants_power <- function(variant_files, # vector of path aiming at the final parsed files germline_final.txt
-                           variant_files_initial, # vector of path aiming at the final parsed files germline_final.txt of the initial run
+variants_power <- function(variant_files,
+                           variant_files_initial,
                            down_label = NA,
                            truth_set = NA,
                            caller,
