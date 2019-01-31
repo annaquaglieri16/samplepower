@@ -100,7 +100,6 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
     stop("Specify which 'caller' was used to produce the variants provided.")
   }
 
-
   #if(!exists("gene_expression",where = search_env)){
   #  add_gene_counts <- FALSE
   #  warning("The path to the gene_expression file is missing. The logRPKM of genes won't be added next to the variants reported.")
@@ -681,9 +680,9 @@ variants_power <- function(variant_files, # vector of path aiming at the final p
   ######################################################
 
   # I will use the dataset below to study the features of the false positives in the downsampled runs
-  variants_down_filtered_expr$FP_defaults <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
+  variants_down_filtered_expr$FP_defaults <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered$key1_SampleName) &
                                                       variants_down_filtered_expr$Keep_defaults, 1, 0)
-  variants_down_filtered_expr$FP_annot <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered_unique$key1_SampleName) &
+  variants_down_filtered_expr$FP_annot <- ifelse(!(variants_down_filtered_expr$key1_SampleName %in% variants_init_filtered$key1_SampleName) &
                                                    variants_down_filtered_expr$Keep_annot, 1, 0)
 
 
