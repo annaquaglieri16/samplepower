@@ -1,29 +1,12 @@
-############
-## Parse PON
-############
+#' Parse panel of normal variants to standardise output across callers
+#' @param path_to_pon link to panel of normal file created with GATK3 VariantsToTable using at least
+#' @param caller one of `varscan`, `mutect` or `vardict`. This field is needed to parse the variant allele frequency field which is recorded differently across callers.
+#' @examples
+#'
+#' path_to_pon = "varscan_calls/PON_varscan_target_regions.table"
+#'
+#' parse_varscan <- parse_pon(path_to_pon,'varscan')
 
-create_vaf <- function(vaf){
-  as.numeric(substr(vaf,1,nchar(vaf)-1))/100
-}
-
-# Extract VAF from VarScan output
-parse_vaf_varscan <- function(freq){
-  freq <- gsub("%","",freq)
-  freq <- as.numeric(as.character(freq))/100
-  return(freq)
-}
-
-vaf_to_number <- function(freq){
-  freq <- as.numeric(as.character(freq))
-  return(freq)
-}
-
-# Nset
-n_normals <- function(set){
-  length(gregexpr("-", set)[[1]])+1
-}
-
-# path_to_pon is the link to the file created with combinevariants using GATK
 
 parse_pon <- function(path_to_pon,
                       caller){
@@ -65,5 +48,28 @@ parse_pon <- function(path_to_pon,
   combine_vaf$Location <- paste(combine_vaf$CHROM,combine_vaf$POS,sep="_")
 
   return(combine_vaf)
+}
+
+
+# Miscellaneuos
+#create_vaf <- function(vaf){
+#  as.numeric(substr(vaf,1,nchar(vaf)-1))/100
+#}
+
+# Extract VAF from VarScan output
+parse_vaf_varscan <- function(freq){
+  freq <- gsub("%","",freq)
+  freq <- as.numeric(as.character(freq))/100
+  return(freq)
+}
+
+vaf_to_number <- function(freq){
+  freq <- as.numeric(as.character(freq))
+  return(freq)
+}
+
+# Nset
+n_normals <- function(set){
+  length(gregexpr("-", set)[[1]])+1
 }
 
