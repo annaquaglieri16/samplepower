@@ -1,3 +1,8 @@
+#' Computes sensitivity with respect to a truth set
+#' @param variants dataframe created within the `variant_power.R` function. The columns required in this dataframe are `Called_defaults` and `Called_defaults` which are numeric 0/1 defining whther a variant is called. If `indel = TRUE` also the column `key` is required. `key` is a unique key for a variant: `chr:POS:SampleName:Gene:Transcript`.
+#' @param truth_set external truth set. The truth set os only needed to know the total number of variants in it.
+#' @param indel logical. TRUE is INDELs are analysed.
+
 sens_compute <- function(variants,
                          truth_set,
                          indel = FALSE){
