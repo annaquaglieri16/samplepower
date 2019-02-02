@@ -270,18 +270,24 @@ variants_power <- function(variant_files,
 
     #tab <- variants_down_filtered %>% group_by(key_SampleName) %>% count()
 
-    variants_down_filtered <- unique(variants_down_filtered %>% select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,tot_depth ,VAF,ref_depth,key_SampleName,
-                                                                       alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
-                                                                       variant_type,Exon_edge,RepeatMasker,Homopolymers,
-                                                                       Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,germline_somatic,Flag_defaults,Flag_annot,
-                                                                       PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
+    variants_down_filtered <- unique(variants_down_filtered %>%
+                                       select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,
+                                              tot_depth ,VAF,ref_depth,key_SampleName,
+                                              alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,
+                                              SYMBOL,down_label,variant_type,Exon_edge,RepeatMasker,Homopolymers,
+                                              Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,
+                                              germline_somatic,Flag_defaults,Flag_annot,
+                                              PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
     #tab <- variants_down_filtered1 %>% group_by(key_SampleName) %>% count()
 
-    variants_init_filtered <- unique(variants_init_filtered %>% select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,tot_depth ,VAF,ref_depth,key_SampleName,
-                                                                       alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
-                                                                       variant_type,Exon_edge,RepeatMasker,Homopolymers,
-                                                                       Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,germline_somatic,Flag_defaults,Flag_annot,
-                                                                       PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
+    variants_init_filtered <- unique(variants_init_filtered %>%
+                                       select(SampleName,chrom,pos,ref,alt,qual,filter,
+                                              genotype,tot_depth ,VAF,ref_depth,key_SampleName,
+                                      alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
+                                      variant_type,Exon_edge,RepeatMasker,Homopolymers,
+                                      Quality_defaults,Quality_annot,Flag,Keep_annot,Keep_defaults,
+                                      germline_somatic,Flag_defaults,Flag_annot,
+                                     PON,COSMIC,EXAC_rare,EXAC_common,dbSNP,RADAR,Location,caller))
 
     coverage_downsampled <- unique(merge(coverage_downsampled,
                                          variants_down_filtered,all.x=TRUE))
@@ -624,12 +630,12 @@ variants_power <- function(variant_files,
   # Using default filters
   var_passed_in_initial_defaults <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_defaults]
   fpn_defaults_indels <- sum(indels_caller_unique$Keep_defaults_down[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_defaults)])
-  fp_defaults_indels <- fpn_defaults_indels/sum(indels_caller_unique$Keep_defaults)
+  fp_defaults_indels <- fpn_defaults_indels/sum(indels_caller_unique$Keep_defaults_down)
 
   # using filters which include external databases
   var_passed_in_initial_annot <- indels_init_filtered_unique$key1_SampleName[indels_init_filtered_unique$Keep_annot]
   fpn_annot_indels <- sum(indels_caller_unique$Keep_annot_down[!(indels_caller_unique$key1_SampleName %in% var_passed_in_initial_annot)])
-  fp_annot_indels <- fpn_annot_indels/sum(indels_caller_unique$Keep_annot)
+  fp_annot_indels <- fpn_annot_indels/sum(indels_caller_unique$Keep_annot_down)
 
   fp_indels = c(fpn_defaults_indels,fp_defaults_indels,fpn_annot_indels,fp_annot_indels)
   names(fp_indels) <- c("Ndefaults","Pdefaults","Nannot","Pannot")
