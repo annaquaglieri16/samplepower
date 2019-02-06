@@ -7,11 +7,6 @@
 # 4. Subset only those genes
 # 5. associate samples_genes and merge it with teh variants
 
-# 2. Extract and rename counts
-reassign_names <- function(sample_names,counts){
-  grep_sampleName <- grep(sample_names,colnames(counts))
-  return(grep_sampleName)
-}
 
 add_log_rpkm <- function(variants, # this is the dataframe
                          gene_expression,

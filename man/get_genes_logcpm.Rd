@@ -4,18 +4,18 @@
 \alias{get_genes_logcpm}
 \title{Extract logCPM and raw counts for selected genes and samples}
 \usage{
-get_genes_logcpm(geneCountsPath, sampleNames, genes, ncbi, label)
+get_genes_logcpm(geneCountsPath, sample_names, genes, ncbi, label)
 }
 \arguments{
 \item{geneCountsPath}{path to `.rds` files with output from `featureCounts`}
-
-\item{sampleNames}{charatcter vector with sample names to be given as output. Sample names do not have to match exactly the column names in the `featureCounts` output but they have at least to contain the string.}
 
 \item{genes}{character vector with gene `Symbol` to return as output}
 
 \item{ncbi}{data frame containing mathing `Symbol` and `GeneID` from NCBI.}
 
 \item{label}{character. Group label to assign as a column to data frame returned as output.}
+
+\item{sampleNames}{charatcter vector with sample names to be given as output. Sample names do not have to match exactly the column names in the `featureCounts` output but they have at least to contain the string.}
 }
 \description{
 Extract logCPM and raw counts for selected genes and samples
