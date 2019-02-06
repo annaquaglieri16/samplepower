@@ -7,7 +7,7 @@
 
 
 get_genes_logcpm <- function(geneCountsPath,
-                      sampleNames,
+                             sample_names,
                       genes,
                       ncbi,
                       label){
@@ -15,11 +15,11 @@ get_genes_logcpm <- function(geneCountsPath,
   # 1. Read in counts
   counts <- readRDS(geneCountsPath)
 
-  # Only keep counts for samples defined in sampleNames
-  grep_sample_columns <- grep(paste(sampleNames,collapse = "|"),colnames(counts$counts))
+  # Only keep counts for samples defined in sample_names
+  grep_sample_columns <- grep(paste(sample_names,collapse = "|"),colnames(counts$counts))
   counts$counts <- counts$count[,grep_sample_columns]
 
-  counts1 <- sapply(sampleNames,function(name){
+  counts1 <- sapply(sample_names,function(name){
     reassignNames(sample_names = name,counts = counts$counts)
   } )
   counts1 <- unlist(counts1) # to avoid coercing to list if some sample names are not found in the column names
