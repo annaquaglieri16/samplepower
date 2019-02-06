@@ -342,82 +342,12 @@ variants_power <- function(variant_files,
   ## Sens and FP using initial set as truth set
   #############################################
 
-  variants_init_filtered$key1_SampleName <- paste(variants_init_filtered$chrom,
-                                                  variants_init_filtered$pos,
-                                                  variants_init_filtered$SampleName,
-                                                  variants_init_filtered$alt,
-                                                  variants_init_filtered$SYMBOL,sep=":")
 
-  variants_down_filtered$key1_SampleName <- paste(variants_down_filtered$chrom,
-                                                  variants_down_filtered$pos,
-                                                  variants_down_filtered$SampleName,
-                                                  variants_down_filtered$alt,
-                                                  variants_down_filtered$SYMBOL,sep=":")
-
-  # I use the dbSNP, Exac databases to annotate the variants and set the flags.
-  # The same variant can be annotated differently, in some cases they have or they don't have tdbSNP for instance.
-  # This means that if I use the flag term I will have duplicated variants
-  # What I am interested here is to see how much different library sizes affect the false positive rate at different levels of downsampling.
-  #variants_init_filtered_unique <- unique(variants_init_filtered[,c("Location","caller","chrom","pos","ref","alt", "key1_SampleName","down_label"#,"Keep_defaults","Keep_annot")])
-
-  #  variants_down_filtered_unique <- unique(variants_down_filtered[,c("Location","caller","chrom","pos","ref","alt",
-  #                                                                    "key1_SampleName","Keep_defaults","Keep_annot")])
-
-
-  # Create unique rows for each variant by pasting the flags
-  variants_init_filtered_unique <- variants_init_filtered %>%
-    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label,variant_type) %>%
-    dplyr::filter(variant_type %in% "SNV") %>%
-    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
-              Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
-              qual = round(mean(qual,na.rm=TRUE),3),
-              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
-              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
-              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
-              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
-    dplyr::mutate(Keep_annot = ifelse(Keep_annot == 1, TRUE,FALSE),
-           Keep_defaults = ifelse(Keep_defaults == 1, TRUE,FALSE),
-           Flag_defaults = sapply(strsplit(Flag_defaults,split=";"),function(x) paste(sort(unique(x)),collapse=";")),
-           Flag_annot = sapply(strsplit(Flag_annot,split=";"),function(x) paste(sort(unique(x)),collapse=";")))
-
-
-  # dowsampled
-  variants_down_filtered_unique <- variants_down_filtered %>%
-    dplyr::filter(variant_type %in% "SNV") %>%
-    dplyr::group_by(key1_SampleName,chrom,pos,SampleName,alt,SYMBOL,caller,down_label,variant_type) %>%
-    dplyr::summarise(Flag_annot = paste(Flag_annot,collapse = ";"),
-              Flag_defaults = paste(Flag_defaults,collapse = ";"),
-              Keep_annot = max(Keep_annot),
-              Keep_defaults = max(Keep_defaults),
-              qual = round(mean(qual,na.rm=TRUE),3),
-              ref_depth = round(mean(ref_depth,na.rm=TRUE),3),
-              alt_depth = round(mean(alt_depth,na.rm=TRUE),3),
-              tot_depth = round(mean(tot_depth,na.rm=TRUE),3),
-              VAF = round(mean(VAF,na.rm=TRUE),3)) %>%
-    dplyr::rename(alt_depth_down = alt_depth,
-                  VAF_down = VAF,
-                  qual_down = qual,
-                  Flag_annot_down = Flag_annot,
-                  Flag_defaults_down = Flag_defaults,
-                  Keep_annot_down = Keep_annot,
-                  Keep_defaults_down = Keep_defaults) %>%
-    dplyr::mutate(Keep_annot_down = ifelse(Keep_annot_down == 1, TRUE,FALSE),
-           Keep_defaults_down = ifelse(Keep_defaults_down == 1, TRUE,FALSE),
-           Flag_defaults_down = sapply(strsplit(Flag_defaults_down,split=";"),function(x) paste(sort(unique(x)),collapse=";")),
-           Flag_annot_down = sapply(strsplit(Flag_annot_down,split=";"),function(x) paste(sort(unique(x)),collapse=";")))
-
-  # Match if a variant present in the initial run was found in the downsampled dataset.
-  # Is there a match with the variants called in the downsampled dataset?
-  # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
-
-  variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults_down]
+    variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults_down]
 
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
     dplyr::mutate(DownMatch_defaults = ifelse(key1_SampleName %in% variant_called_down,TRUE,FALSE)) %>%
     dplyr::mutate(DownCalled_defaults = ifelse(DownMatch_defaults & Keep_defaults,1,0))
-
 
   # Same for annot strategy
   variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_annot_down]

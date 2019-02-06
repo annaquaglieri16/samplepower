@@ -13,7 +13,6 @@ reassign_names <- function(sample_names,counts){
   return(grep_sampleName)
 }
 
-
 add_log_rpkm <- function(variants, # this is the dataframe
                          gene_expression,
                          sample_names){
