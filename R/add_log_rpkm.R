@@ -14,6 +14,9 @@ add_log_rpkm <- function(variants, # this is the dataframe
 
   # 1. Read in counts obtained with featurecounts and saved as RDS file
   counts <- readRDS(gene_expression)
+  # Only keep counts for samples defined in sample_names
+  grep_sample_columns <- grep(paste(sample_names,collapse = "|"),colnames(counts$counts))
+  counts$counts <- counts$count[,grep_sample_columns]
 
   counts1 <- sapply(sample_names,function(name){
     reassign_names(name,counts$counts)
