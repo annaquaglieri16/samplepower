@@ -8,9 +8,9 @@
 
 get_genes_logcpm <- function(geneCountsPath,
                              sample_names,
-                      genes,
-                      ncbi,
-                      label){
+                            genes,
+                            ncbi,
+                            label){
 
   # 1. Read in counts
   counts <- readRDS(geneCountsPath)

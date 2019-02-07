@@ -18,7 +18,7 @@ cov_long_tot_depth <- cov %>% tidyr::gather(base_tot_counts,tot_depth, starts_wi
 
 # Reshape from wide to long the per allel base depth for every sample
 cov_long_alt_depth <- cov %>% gather(base_alt_counts,alleles, contains("base_counts")) %>%
-  select(Locus,base_alt_counts,alleles)
+  dplyr::select(Locus,base_alt_counts,alleles)
 
 # Unique names of the sample to extract information from column
 if(TCGA){
