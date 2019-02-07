@@ -20,7 +20,7 @@ get_genes_logcpm <- function(geneCountsPath,
   counts$counts <- counts$count[,grep_sample_columns]
 
   counts1 <- sapply(sample_names,function(name){
-    reassignNames(sample_names = name,counts = counts$counts)
+    reassign_names(sample_names = name,counts = counts$counts)
   } )
   counts1 <- unlist(counts1) # to avoid coercing to list if some sample names are not found in the column names
 
