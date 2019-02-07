@@ -411,8 +411,7 @@ variants_power <- function(variant_files,
   # Match if a variant present in the initial run was found in the downsampled dataset.
   # Is there a match with the variants called in the downsampled dataset?
   # DownMatch_defaults is 1 if a variant in the initial file is called in the downsampled set
-
-
+  #
     variant_called_down <- variants_down_filtered_unique$key1_SampleName[variants_down_filtered_unique$Keep_defaults_down]
 
   variants_init_filtered_unique <- variants_init_filtered_unique %>%
