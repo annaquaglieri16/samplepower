@@ -1,5 +1,5 @@
 
-match_indels <- function(truth_set,variants,use_transcript){
+match_indels <- function(truth_set,variants,use_transcript,maxgap=50){
 
   # If an INDELS is reported in the truth set with a start != end then I will use this range to find an overlap?
   if ( "pos" %in% colnames(truth_set) & "end" %in% colnames(truth_set) ) {
@@ -84,12 +84,13 @@ match_indels <- function(truth_set,variants,use_transcript){
 
     }
 
+    # The caller reports only the pos of an INDEL
     df <- callset_indel %>% dplyr::select(-chrom,-pos)
     callset_GR <- GRanges(seqnames = callset_indel$chrom,
                             IRanges(start = as.numeric(as.character(callset_indel$pos)),
                                     end = as.numeric(as.character(callset_indel$pos))),mcols=df)
 
-    over <- findOverlaps(query = truth_indel,subject = callset_GR,maxgap = 50)
+    over <- findOverlaps(query = truth_indel,subject = callset_GR,maxgap = maxgap)
 
     if(length(over) < 1 ){
 

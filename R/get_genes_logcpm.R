@@ -23,7 +23,6 @@ get_genes_logcpm <- function(geneCountsPath,
     reassign_names(sample_names = name,counts = counts$counts)
   } )
   counts1 <- unlist(counts1) # to avoid coercing to list if some sample names are not found in the column names
-
   colnames(counts$counts)[counts1] <- names(counts1)
   rownames(counts$counts) <- ncbi$Symbol[match(rownames(counts$counts),ncbi$GeneID)]
 
@@ -41,3 +40,5 @@ get_genes_logcpm <- function(geneCountsPath,
   list(cpmCounts=cpmCounts,rawCounts=rawCounts)
 
 }
+
+
