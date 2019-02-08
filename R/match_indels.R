@@ -61,7 +61,7 @@ match_indels <- function(truth_set,variants,use_transcript,maxgap=50){
   # the match with a variant in the downsampled set and all the information next to it.
 
   # for each variant in the truth set
-  match_truth_set <- sapply(1:length(truth_set_GR), function(index_indel){
+  match_truth_set <- lapply(1:length(truth_set_GR), function(index_indel){
 
     # 1. Select one indel
     truth_indel <- truth_set_GR[index_indel]
