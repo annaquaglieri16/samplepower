@@ -24,15 +24,21 @@ sens_compute <- function(variants,
     ncalled_default <- length(unique(variants$key[variants$Called_defaults == 1]))
     ncalled_annot05 <- length(unique(variants$key[variants$Called_annot05 == 1]))
     ncalled_default05 <- length(unique(variants$key[variants$Called_defaults05 == 1]))
+    ncalled_nofilter <- length(unique(variants$key[variants$Called_nofilter == 1]))
+    ncalled_nofilter05 <- length(unique(variants$key[variants$Called_nofilter05 == 1]))
+
 
     # Sensitivity for SNVs using annotations + quality measures
     sens_annot = ncalled_annot/nrow(truth_set)
     sens_annot05 = ncalled_annot05/nrow(truth_set)
     sens_defaults = ncalled_default/nrow(truth_set)
     sens_defaults05 = ncalled_default05/nrow(truth_set)
+    sens_nofilter = ncalled_nofilter/nrow(truth_set)
+    sens_nofilter05 = ncalled_nofilter05/nrow(truth_set)
 
-    sens = c(sens_defaults,sens_annot,sens_defaults05,sens_annot05)
-    names(sens) <- c("defaults","annotations","defaults05","annotations05")
+
+    sens = c(sens_defaults,sens_annot,sens_nofilter,sens_defaults05,sens_annot05,sens_nofilter05)
+    names(sens) <- c("defaults","annotations","nofilter","defaults05","annotations05","nofilter05")
 
   }
 
