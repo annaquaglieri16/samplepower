@@ -13,7 +13,7 @@ parse_vep_csq <- function(vcf_path,vcf_df){
 
     message("No VEP annotation present.")
 
-    return(NULL)
+    return(vcf_df)
 
   } else {
 
