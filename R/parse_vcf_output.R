@@ -84,17 +84,17 @@ parse_vcf_output <- function(vcf_path, sample_name, caller) {
 
     if(caller == "vardict"){
 
-      vcf_df <- data.frame(data.frame(ranges(VEPvardict)),
-                           genotype= VariantAnnotation::geno(VEPvardict)$GT[,1],
-                           #SampleName = VariantAnnotation::info(VEPvardict)$SAMPLE,
-                           qual = VariantAnnotation::info(VEPvardict)$QUAL,
-                           filter = VariantAnnotation::filt(VEPvardict),
-                           DP = VariantAnnotation::info(VEPvardict)$DP,
-                           VAF = VariantAnnotation::info(VEPvardict)$AF,
-                           ADJVAF_ADJ_indels = VariantAnnotation::info(VEPvardict)$ADJAF,
-                           VD = VariantAnnotation::info(VEPvardict)$VD,
-                           REFBIAS = VariantAnnotation::info(VEPvardict)$REFBIAS,
-                           VARBIAS = VariantAnnotation::info(VEPvardict)$VARBIAS) %>%
+      vcf_df <- data.frame(data.frame(ranges(vcf)),
+                           genotype= VariantAnnotation::geno(vcf)$GT[,1],
+                           #SampleName = VariantAnnotation::info(vcf)$SAMPLE,
+                           qual = VariantAnnotation::info(vcf)$QUAL,
+                           filter = VariantAnnotation::filt(vcf),
+                           DP = VariantAnnotation::info(vcf)$DP,
+                           VAF = VariantAnnotation::info(vcf)$AF,
+                           ADJVAF_ADJ_indels = VariantAnnotation::info(vcf)$ADJAF,
+                           VD = VariantAnnotation::info(vcf)$VD,
+                           REFBIAS = VariantAnnotation::info(vcf)$REFBIAS,
+                           VARBIAS = VariantAnnotation::info(vcf)$VARBIAS) %>%
 
         tidyr::separate(names,into=c("Location","alleles"),sep="_") %>%
         tidyr::separate(Location,into=c("chrom","pos"),sep=":",remove=FALSE) %>%
