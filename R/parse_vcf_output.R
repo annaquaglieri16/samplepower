@@ -102,6 +102,8 @@ parse_vcf_output <- function(vcf_path, sample_name, caller) {
         tidyr::separate(REFBIAS,into=c("ref_forw","ref_rev"),sep=":") %>%
         tidyr::separate(VARBIAS,into=c("alt_forw","alt_rev"),sep=":") %>%
         dplyr::mutate(ref_depth = DP - VD) %>%
+        dplyr::rename(tot_depth = DP,
+                      alt_depth = VD) %>%
         dplyr::select(-start) %>%
         dplyr::mutate(caller="vardict",
                       Location = gsub(":","_",Location))
@@ -109,6 +111,11 @@ parse_vcf_output <- function(vcf_path, sample_name, caller) {
     }
 
   }
+
+    vcf_df <- vcf_df %>% dplyr::select(Location,caller,chrom,pos,end,ref,alt,qual,filter,
+                                        genotype,tot_depth,VAF,ref_depth,
+                                        alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,everything())
+
 
     return(vcf_df)
 

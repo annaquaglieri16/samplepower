@@ -11,9 +11,8 @@ parse_vep_csq <- function(vcf_path,vcf_df){
   des <- VariantAnnotation::info(VariantAnnotation::header(vcf))
   if(sum(rownames(des) == "CSQ") < 1){
 
-    message("No VEP annotation present.")
-
     return(vcf_df)
+    stop("No VEP annotation present.")
 
   } else {
 
@@ -35,7 +34,7 @@ parse_vep_csq <- function(vcf_path,vcf_df){
       dplyr::mutate(IMPACT_rank = as.character(as.numeric(IMPACT)))
 
 
-    vcf_parsed <- vcf_df %>% dplyr::select(Location,caller,chrom,pos,ref,alt,qual,filter,
+    vcf_parsed <- vcf_df %>% dplyr::select(Location,caller,chrom,pos,end,ref,alt,qual,filter,
                                            genotype,tot_depth,VAF,ref_depth,
                                            alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,everything())
 
