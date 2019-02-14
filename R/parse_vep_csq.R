@@ -34,13 +34,10 @@ parse_vep_csq <- function(vcf_path,vcf_df){
       dplyr::mutate(IMPACT = factor(IMPACT, levels = c("MODIFIER","LOW","MODERATE","HIGH"))) %>%
       dplyr::mutate(IMPACT_rank = as.character(as.numeric(IMPACT)))
 
-
-    print("here3")
     vcf_parsed <- vcf_df %>% dplyr::select(Location,caller,chrom,pos,end,ref,alt,qual,filter,
                                            genotype,tot_depth,VAF,ref_depth,
                                            alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,everything())
 
-    print("here4")
     return(vcf_parsed)
 
   }
