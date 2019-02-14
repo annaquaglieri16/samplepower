@@ -23,9 +23,10 @@ parse_vep_csq <- function(vcf_path,vcf_df){
 
     # Duplicate rows of dataframe to allow VEP annotation
     nrepl <- sapply(VariantAnnotation::info(vcf)$CSQ,length)
-    df_repl <- vcf_df %>% slice(rep(1:n(), times = nrepl))
-    vcf_df <- df_repl %>% mutate(INFO_VEP = do.call(c,VariantAnnotation::info(vcf)$CSQ)) %>%
+    df_repl <- vcf_df %>% dplyr::slice(rep(1:n(), times = nrepl))
+    vcf_df <- df_repl %>% dplyr::mutate(INFO_VEP = unlist(VariantAnnotation::info(vcf)$CSQ)) %>%
       tidyr::separate(INFO_VEP,into = des_vep_names,sep="[|]")
+
 
     # Order IMPACT based on https://asia.ensembl.org/info/genome/variation/prediction/predicted_data.html
     vcf_df <- vcf_df %>% dplyr::mutate(IMPACT = as.character(IMPACT)) %>%
@@ -34,10 +35,12 @@ parse_vep_csq <- function(vcf_path,vcf_df){
       dplyr::mutate(IMPACT_rank = as.character(as.numeric(IMPACT)))
 
 
+    print("here3")
     vcf_parsed <- vcf_df %>% dplyr::select(Location,caller,chrom,pos,end,ref,alt,qual,filter,
                                            genotype,tot_depth,VAF,ref_depth,
                                            alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,everything())
 
+    print("here4")
     return(vcf_parsed)
 
   }
