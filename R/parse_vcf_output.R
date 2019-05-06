@@ -1,4 +1,4 @@
-#' Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works woth germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.
+#' Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works with germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.
 #' @param vcf_path path to where the `.vcf` file for one sample is saved.
 #' @param sample_name character. Sample name of the current `vcf` file.
 #' @param caller character. One of `mutect`, `vardict` or `varscan`.

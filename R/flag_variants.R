@@ -6,7 +6,8 @@
 #' @param RNAedit_ranges GRanges object with RNA editing sites relative to the reference genome used
 #' @param repeats_ranges GRanges object with repetitive regions of the reference genome used
 #' @param flag_patterns dataframe containing the flags to assign to variants. THIS NEEDS TO BE SET AS INTERNAL TO THE PACKAGE
-#'
+#' @param flag_qualities logical. TRUE by default, variants are flagged based on quality measures. If FALSE this step is skipped.
+
 
 #######################################
 ## Add flag and Keep for every variant
@@ -18,9 +19,11 @@ flag_variants <- function(variants,
                       exon_ranges,
                       homop_ranges,
                       RNAedit_ranges,
-                      repeats_ranges){
+                      repeats_ranges,
+                      flag_qualities = TRUE){
 
-  variants <- variants %>% tidyr::unite(Location, alt , col = "Location_alt", sep="_",remove = FALSE)
+  variants <- variants %>%
+    tidyr::unite(Location, alt , col = "Location_alt", sep="_",remove = FALSE)
 
   normal_variants <- normal_variants %>% tidyr::unite(Location, alt , col = "Location_alt", sep="_",remove = FALSE)
   normal_variants_morethan2 <- normal_variants %>% dplyr::filter(nsam > 2)
@@ -114,6 +117,9 @@ flag_variants <- function(variants,
   patterns <- read.csv(flag_patterns,stringsAsFactors = FALSE)
   variants_flagged <- merge(variants,patterns,all.x=TRUE)
 
+
+  if(flag_qualities) {
+
   # Update Keep filed based on default filtering strategies by the callers
   # 1. Use default filters for the caller + present in normal (PON already considered in the flag patterns csv): Keep if the quality is good and not present in normal
   # 2. Use more stringent heuristic filters + flag with annotation databased
@@ -139,6 +145,8 @@ flag_variants <- function(variants,
   # Homopolymers
   variants_flagged$Keep_annot <- ifelse(variants_flagged$Homopolymers == 1,FALSE,variants_flagged$Keep_annot)
   variants_flagged$Flag_annot <- ifelse(variants_flagged$Homopolymers == 1,"homopolymers",as.character(variants_flagged$Flag_annot))
+
+  }
 
   return(variants_flagged)
 

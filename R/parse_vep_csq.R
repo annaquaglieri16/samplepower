@@ -1,4 +1,4 @@
-#' Parsethe CSQ field added to the `VCF` file by the Variant Effect Predictor
+#' Parse the CSQ field added to the `VCF` file by the Variant Effect Predictor
 #' @param vcf_path path to where the `.vcf` file for one sample is saved.
 #' @param vcf_df `R` object returned by `parse_vcf_output()` after parsing relevant fields from the `VCF` file.
 

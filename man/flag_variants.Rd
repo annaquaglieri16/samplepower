@@ -5,7 +5,7 @@
 \title{Flag and annotate variants using external databases and panel of normals information}
 \usage{
 flag_variants(variants, normal_variants, flag_patterns, exon_ranges,
-  homop_ranges, RNAedit_ranges, repeats_ranges)
+  homop_ranges, RNAedit_ranges, repeats_ranges, flag_qualities = TRUE)
 }
 \arguments{
 \item{variants}{dataframe containing all the variants in the cohort. This is created within the `variants_power()` function}
@@ -21,6 +21,8 @@ flag_variants(variants, normal_variants, flag_patterns, exon_ranges,
 \item{RNAedit_ranges}{GRanges object with RNA editing sites relative to the reference genome used}
 
 \item{repeats_ranges}{GRanges object with repetitive regions of the reference genome used}
+
+\item{flag_qualities}{logical. TRUE by default, variants are flagged based on quality measures. If FALSE this step is skipped.}
 }
 \description{
 Flag and annotate variants using external databases and panel of normals information

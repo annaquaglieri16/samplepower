@@ -314,7 +314,7 @@ variants_power <- function(variant_files,
     dplyr::mutate(Flag_annot = case_when(match_alt == 0 ~ paste0(Flag_annot,";mismatch alt"),
                                          TRUE ~ Flag_annot))
 
-  # Alt is obtained from GATK both is the variant is called or not called so there will always an ALT
+  # Alt is obtained from GATK both if the variant is called or not called so there will always an ALT
   coverage_downsampled <- coverage_downsampled %>%
     dplyr::mutate(Called_annot =  ifelse(Called_annot == 1 & match_alt == 1,1,0),
                   Called_defaults = ifelse(Called_defaults == 1 & match_alt == 1,1,0))

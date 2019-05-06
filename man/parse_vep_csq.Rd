@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse_vep_csq.R
 \name{parse_vep_csq}
 \alias{parse_vep_csq}
-\title{Parsethe CSQ field added to the `VCF` file by the Variant Effect Predictor}
+\title{Parse the CSQ field added to the `VCF` file by the Variant Effect Predictor}
 \usage{
 parse_vep_csq(vcf_path, vcf_df)
 }
@@ -12,5 +12,5 @@ parse_vep_csq(vcf_path, vcf_df)
 \item{vcf_df}{`R` object returned by `parse_vcf_output()` after parsing relevant fields from the `VCF` file.}
 }
 \description{
-Parsethe CSQ field added to the `VCF` file by the Variant Effect Predictor
+Parse the CSQ field added to the `VCF` file by the Variant Effect Predictor
 }

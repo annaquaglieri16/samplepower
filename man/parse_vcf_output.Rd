@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse_vcf_output.R
 \name{parse_vcf_output}
 \alias{parse_vcf_output}
-\title{Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works woth germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.}
+\title{Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works with germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.}
 \usage{
 parse_vcf_output(vcf_path, sample_name, caller)
 }
@@ -14,5 +14,5 @@ parse_vcf_output(vcf_path, sample_name, caller)
 \item{caller}{character. One of `mutect`, `vardict` or `varscan`.}
 }
 \description{
-Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works woth germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.
+Parse a VCF input to return a data frame with standardised fields across callers to use for caller comparison. It only works with germline calls and for VCF from the following callers: GATK3 MuTect2, VarScan2 and VarDict.
 }
