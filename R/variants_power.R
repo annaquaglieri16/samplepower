@@ -269,7 +269,7 @@ variants_power <- function(variant_files,
     #tab <- variants_down_filtered %>% group_by(key_SampleName) %>% count()
 
     variants_down_filtered <- unique(variants_down_filtered %>%
-                                       select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,
+                                       dplyr::select(SampleName,chrom,pos,ref,alt,qual,filter,genotype,
                                               tot_depth ,VAF,ref_depth,key_SampleName,
                                               alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,
                                               SYMBOL,down_label,variant_type,Exon_edge,RepeatMasker,Homopolymers,
@@ -279,7 +279,7 @@ variants_power <- function(variant_files,
     #tab <- variants_down_filtered1 %>% group_by(key_SampleName) %>% count()
 
     variants_init_filtered <- unique(variants_init_filtered %>%
-                                       select(SampleName,chrom,pos,ref,alt,qual,filter,
+                                       dplyr::select(SampleName,chrom,pos,ref,alt,qual,filter,
                                               genotype,tot_depth ,VAF,ref_depth,key_SampleName,
                                       alt_depth,ref_forw,ref_rev,alt_forw,alt_rev,SYMBOL,down_label,
                                       variant_type,Exon_edge,RepeatMasker,Homopolymers,
