@@ -70,6 +70,9 @@ vaf_to_number <- function(freq){
 
 # Nset
 n_normals <- function(set){
-  length(gregexpr("-", set)[[1]])+1
+  len <- gregexpr("-", set)[[1]]
+  nsam <- ifelse(len < 0,1,length(len)+1)
+  nsam
 }
 
+ifelse(gregexpr("-", "A1",fixed = TRUE)[[1]] < 0,1,length(gregexpr("-", combine_vaf$set[1])[[1]])+1)
