@@ -1,7 +1,7 @@
 Package: samplepower
 Type: Package
 Title: Compute sensitivity and false positive rates for a variant call set with repsect to a truth dataset.
-Version: 1.14.0
+Version: 1.15.0
 Depends: 
   R (>= 3.5),
   BiocGenerics,
